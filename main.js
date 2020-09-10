@@ -2,8 +2,7 @@ const board = document.getElementById('tertisBoard')
 const context = board.getContext('2d')
 // context.scale(30, 30)
 
-context.fillStyle = 'white'
-context.fillRect(0, 0, 300, 720); 
+
 
 let blockT = [
     [0, 0, 0],
@@ -28,4 +27,32 @@ function generateBlock(block, offset) {         // this function is generate blo
     })
 }
 
-generateBlock(player.matrix, player.position)
+
+
+
+
+function generate() {
+    generateBlock(player.matrix, player.position)
+}
+
+let start = 0
+let interval = 0
+let speedCap = 1000                 // speed cap is the control speed of block drop
+
+function updateBoard(t = 0) {
+    const changeOfTime = t - start    // get the constant 16.66
+    start = t                       // update the time accordingly
+    interval += changeOfTime
+
+    if (interval > speedCap) {
+        player.position.y++
+        interval = 0
+    }
+    context.fillStyle = 'white'         // empty board generated
+    context.fillRect(0, 0, 300, 720);     
+
+    generate()
+    requestAnimationFrame(updateBoard)  // callback updateBoard to update flame
+}
+
+updateBoard()
