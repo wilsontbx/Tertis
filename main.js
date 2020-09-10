@@ -17,7 +17,7 @@ function generate() {                           // main control
     context.fillStyle = 'white'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height);
     drawBlock(player.matrix, player.position)   // draw for moving block
-    drawBlock(arrayBoard,{ x: 0, y: 0 })        // draw for existing struture
+    drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
 }
 
 function drawBlock(block, offset) {         // this function is generate block in screen offset is to move the block
@@ -60,16 +60,14 @@ function collideTetris(arrayBoard, player) {
     for (let r = 0; r < matrix.length; r++) {
         for (let c = 0; c < matrix[r].length; c++) {
             if (matrix[r][c] !== 0 &&                               // first condition
-                (arrayBoard[offset.y + r]&&                         // second condition
-                arrayBoard[offset.y + r][offset.x + c]) !== 0) {    // this can check undefinite value
+                (arrayBoard[offset.y + r] &&                         // second condition
+                    arrayBoard[offset.y + r][offset.x + c]) !== 0) {    // this can check undefinite value
                 return true
             }
         }
     }
     return false
 }
-
-
 
 document.addEventListener('keydown', (e) => {
     e.preventDefault                            // refer to https://keycode.info/
@@ -84,17 +82,18 @@ document.addEventListener('keydown', (e) => {
 
     }
     else if (e.keyCode === 38) {                // 38 is up for keycode
-        // rotate
+        rotate(player.matrix)// rotate
+        
     }
     else if (e.keyCode === 32) {                // 32 is space
         // instant
     }
 })
 
-function moveLeftRight(val){
-    player.position.x+=val                              // +1 is right and -1 is left
+function moveLeftRight(val) {
+    player.position.x += val                              // +1 is right and -1 is left
     if (collideTetris(arrayBoard, player)) {   // will call this function check is that any collide(overlap)
-        player.position.x-=val                  // no matter is positve or negative this can solve
+        player.position.x -= val                  // no matter is positve or negative this can solve
     }
 }
 
@@ -107,10 +106,22 @@ function keydown() {
     }
     interval = 0
 }
+function rotate(matrix) {                       // classic rotate -> 90 degree clockwise
+    for (let r = 0; r < matrix.length; r++) {   // transpore
+        for (let c = 0; c < r; c++) {
+            let temp =matrix[r][c]
+            matrix[r][c]=matrix[c][r]
+            matrix[c][r]=temp
+        }
+    }
+    matrix.forEach(element => {
+        element.reverse()
+    });
+}
 
 let start = 0
 let interval = 0
-let speedCap = 100                     // speed cap is the control speed of block drop
+let speedCap = 1000                     // speed cap is the control speed of block drop
 
 function updateBoard(t = 0) {
     const changeOfTime = t - start      // get the constant 16.66
