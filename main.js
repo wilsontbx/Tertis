@@ -2,20 +2,54 @@ const board = document.getElementById('tertisBoard')
 const context = board.getContext('2d')
 
 const scale = 35;
-const blockT = [
-    [0, 1, 0],
-    [1, 1, 1],
-    [0, 0, 0]
-]
-const blockL = [
-    [0, 1, 0],
-    [0, 1, 0],
-    [0, 1, 1]
-]
 
-
+function generateBlock() {
+    const block = [
+        I=[
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0]
+        ],
+        J=[
+            [0, 2, 0],
+            [0, 2, 0],
+            [2, 2, 0]
+        ],
+        L=[
+            [0, 3, 0],
+            [0, 3, 0],
+            [0, 3, 3]
+        ],
+        O=[
+            [4, 4],
+            [4, 4]
+        ],
+        S=[
+            [0, 5, 5],
+            [5, 5, 0],
+            [0, 0, 0]
+        ],
+        T=[
+            [0, 0, 0],
+            [6, 6, 6],
+            [0, 6, 0]
+        ],
+        Z=[
+            [7, 7, 0],
+            [0, 7, 7],
+            [0, 0, 0]
+        ]
+    ]
+    let result = Math.floor(Math.random() * (block.length))
+    return block[result]
+}
+function blockColour(val){
+    color = ["#6aecee","#0025e6","#e5a239","#f1ee4f","#6eea47","#9130e7","#dd2e21"]
+    return color[val]
+}
 const player = {
-    matrix: blockL,
+    matrix: generateBlock(),
     position: { x: 4, y: 0 },
 }
 
@@ -47,7 +81,7 @@ function drawBlock(block, offset) {         // this function is generate block i
     block.forEach((row, y) => {
         row.forEach((val, x) => {
             if (val !== 0) {
-                context.fillStyle = "red"
+                context.fillStyle = blockColour(val-1)
                 context.fillRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
                 context.strokeRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
             }
@@ -82,8 +116,8 @@ function collideTetris(arrayBoard, player) {
     const offset = player.position
     for (let r = 0; r < matrix.length; r++) {
         for (let c = 0; c < matrix[r].length; c++) {
-            if (matrix[r][c] !== 0 &&                               // first condition
-                (arrayBoard[offset.y + r] &&                         // second condition
+            if (matrix[r][c] !== 0 &&                                   // first condition
+                (arrayBoard[offset.y + r] &&                            // second condition
                     arrayBoard[offset.y + r][offset.x + c]) !== 0) {    // this can check undefinite value
                 return true
             }
@@ -102,12 +136,11 @@ document.addEventListener('keydown', (e) => {
     }
     else if (e.keyCode === 40) {                // 40 is down for keycode
         keydown()                               // down
-
     }
     else if (e.keyCode === 38) {                // 38 is up for keycode
         rotate(player.matrix)                   // rotate
         rotateCheck()
-
+        interval-=100
     }
     else if (e.keyCode === 32) {                // 32 is space
         // instant
@@ -115,9 +148,9 @@ document.addEventListener('keydown', (e) => {
 })
 
 function moveLeftRight(val) {
-    player.position.x += val                              // +1 is right and -1 is left
-    if (collideTetris(arrayBoard, player)) {   // will call this function check is that any collide(overlap)
-        player.position.x -= val                  // no matter is positve or negative this can solve
+    player.position.x += val                    // +1 is right and -1 is left
+    if (collideTetris(arrayBoard, player)) {    // will call this function check is that any collide(overlap)
+        player.position.x -= val                // no matter is positve or negative this can solve
     }
 }
 
@@ -127,8 +160,10 @@ function keydown() {
         player.position.y--                     // reverse step and merge
         mergeBoardPositionToArray(arrayBoard, player)
         player.position = { x: 4, y: 0 }                  // respawn to top
+        player.matrix=generateBlock()
     }
     interval = 0
+
 }
 function rotate(matrix) {                       // classic rotate -> 90 degree clockwise
     for (let r = 0; r < matrix.length; r++) {   // transpore
@@ -143,14 +178,14 @@ function rotate(matrix) {                       // classic rotate -> 90 degree c
     })
 }
 
-function rotateCheck(){
+function rotateCheck() {
     let count = 1
-    while(collideTetris(arrayBoard, player)){
-        if(count%2===0){
-            player.position.x+=count
+    while (collideTetris(arrayBoard, player)) {   // function will operate as if when block crush outside box
+        if (count % 2 === 0) {                        // it will move to left one block
+            player.position.x += count            // still crush move to right two block
         }
-        else{
-            player.position.x-=count
+        else {
+            player.position.x -= count
         }
         count++
     }
@@ -158,10 +193,10 @@ function rotateCheck(){
 
 let start = 0
 let interval = 0
-let speedCap = 1000                     // speed cap is the control speed of block drop
+let speedCap = 800                     // speed cap is the control speed of block drop
 
 function updateBoard(t = 0) {
-    const changeOfTime = t - start      // get the constant 16.66
+    const changeOfTime = t - start      // get the constant 16.67
     start = t                           // update the time accordingly
     interval += changeOfTime
 
@@ -171,7 +206,7 @@ function updateBoard(t = 0) {
 
 
     generate()
-    requestAnimationFrame(updateBoard)  // callback updateBoard to update flame
+    requestAnimationFrame(updateBoard)  // callback updateBoard by update every single flame in 0.16667
 }
 
 updateBoard()
