@@ -8,3 +8,4 @@ Issue:
 3. Study requestAnimationFrame to update block
 4. Board checking to make sure the block wouldnt go out of box for bottom line
 5. check left and right cannot go out box
+6. Rotote in side of board will cause piece go outside box

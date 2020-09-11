@@ -2,20 +2,43 @@ const board = document.getElementById('tertisBoard')
 const context = board.getContext('2d')
 
 const scale = 35;
-let blockT = [
+const blockT = [
     [0, 1, 0],
     [1, 1, 1],
     [0, 0, 0]
 ]
+const blockL = [
+    [0, 1, 0],
+    [0, 1, 0],
+    [0, 1, 1]
+]
+
 
 const player = {
-    matrix: blockT,
-    position: { x: 0, y: 0 },
+    matrix: blockL,
+    position: { x: 4, y: 0 },
 }
 
-function generate() {                           // main control
+function boardStyle() {
     context.fillStyle = 'white'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height);
+    for (var x = 0; x < board.width; x += scale) {
+        context.moveTo(x, 0)
+        context.lineTo(x, board.height)
+    }
+
+    for (var y = 0; y < board.height; y += scale) {
+        context.moveTo(0, y)
+        context.lineTo(board.height, y)
+    }
+
+    context.strokeStyle = "#ddd"
+    context.stroke()
+}
+
+
+function generate() {                           // main control
+    boardStyle()
     drawBlock(player.matrix, player.position)   // draw for moving block
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
 }
@@ -72,7 +95,7 @@ function collideTetris(arrayBoard, player) {
 document.addEventListener('keydown', (e) => {
     e.preventDefault                            // refer to https://keycode.info/
     if (e.keyCode === 37) {                     // 37 is left for keycode
-        moveLeftRight(-1)                        // left
+        moveLeftRight(-1)                       // left
     }
     else if (e.keyCode === 39) {                // 39 is right for keycode
         moveLeftRight(1)                        // right
@@ -82,8 +105,9 @@ document.addEventListener('keydown', (e) => {
 
     }
     else if (e.keyCode === 38) {                // 38 is up for keycode
-        rotate(player.matrix)// rotate
-        
+        rotate(player.matrix)                   // rotate
+        rotateCheck()
+
     }
     else if (e.keyCode === 32) {                // 32 is space
         // instant
@@ -102,21 +126,34 @@ function keydown() {
     if (collideTetris(arrayBoard, player)) {    // will call this function check is that any collide(overlap)
         player.position.y--                     // reverse step and merge
         mergeBoardPositionToArray(arrayBoard, player)
-        player.position.y = 0                   // respawn to top
+        player.position = { x: 4, y: 0 }                  // respawn to top
     }
     interval = 0
 }
 function rotate(matrix) {                       // classic rotate -> 90 degree clockwise
     for (let r = 0; r < matrix.length; r++) {   // transpore
         for (let c = 0; c < r; c++) {
-            let temp =matrix[r][c]
-            matrix[r][c]=matrix[c][r]
-            matrix[c][r]=temp
+            let temp = matrix[r][c]
+            matrix[r][c] = matrix[c][r]
+            matrix[c][r] = temp
         }
     }
     matrix.forEach(element => {
         element.reverse()
-    });
+    })
+}
+
+function rotateCheck(){
+    let count = 1
+    while(collideTetris(arrayBoard, player)){
+        if(count%2===0){
+            player.position.x+=count
+        }
+        else{
+            player.position.x-=count
+        }
+        count++
+    }
 }
 
 let start = 0
