@@ -3,6 +3,11 @@ const context = board.getContext('2d')
 
 const scale = 35;
 
+const player = {
+    matrix: generateBlock(),
+    position: { x: 0, y: 0 },
+}
+
 function generateBlock() {
     const block = [
         I=[
@@ -39,23 +44,32 @@ function generateBlock() {
             [7, 7, 0],
             [0, 7, 7],
             [0, 0, 0]
-        ]
+        ],
+            W=[
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+                [1, 1, 1, 1,1],
+            ],
     ]
-    let result = Math.floor(Math.random() * (block.length))
-    return block[result]
+    // let result = Math.floor(Math.random() * (block.length))
+
+    return block[7]
 }
+
 function blockColour(val){
     color = ["#6aecee","#0025e6","#e5a239","#f1ee4f","#6eea47","#9130e7","#dd2e21"]
     return color[val]
 }
-const player = {
-    matrix: generateBlock(),
-    position: { x: 4, y: 0 },
-}
 
 function boardStyle() {
     context.fillStyle = 'white'                 // empty board generated
-    context.fillRect(0, 0, board.width, board.height);
+    context.fillRect(0, 0, board.width, board.height)
     for (var x = 0; x < board.width; x += scale) {
         context.moveTo(x, 0)
         context.lineTo(x, board.height)
@@ -70,11 +84,12 @@ function boardStyle() {
     context.stroke()
 }
 
-
-function generate() {                           // main control
+function mainControlDraw() {                           // main control
     boardStyle()
-    drawBlock(player.matrix, player.position)   // draw for moving block
+    checkLose()
+
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
+    drawBlock(player.matrix, player.position)   // draw for moving block
 }
 
 function drawBlock(block, offset) {         // this function is generate block in screen offset is to move the block
@@ -97,7 +112,7 @@ function generateArray(width, height) {
     }
     return array
 }
-const arrayBoard = generateArray(10, 24)
+let arrayBoard = generateArray(10, 24)
 
 function mergeBoardPositionToArray(arrayBoard, player) {    // this function is to merge current block value to array
     const matrix = player.matrix
@@ -140,7 +155,7 @@ document.addEventListener('keydown', (e) => {
     else if (e.keyCode === 38) {                // 38 is up for keycode
         rotate(player.matrix)                   // rotate
         rotateCheck()
-        interval-=100
+        // interval-=100                        // das
     }
     else if (e.keyCode === 32) {                // 32 is space
         // instant
@@ -154,16 +169,19 @@ function moveLeftRight(val) {
     }
 }
 
+
 function keydown() {
     player.position.y++                         // everytime when press key down
     if (collideTetris(arrayBoard, player)) {    // will call this function check is that any collide(overlap)
         player.position.y--                     // reverse step and merge
+        
         mergeBoardPositionToArray(arrayBoard, player)
-        player.position = { x: 4, y: 0 }                  // respawn to top
+        clearLine(arrayBoard)
+
+        player.position = { x: 0, y: 0 }                  // respawn to top
         player.matrix=generateBlock()
     }
     interval = 0
-
 }
 function rotate(matrix) {                       // classic rotate -> 90 degree clockwise
     for (let r = 0; r < matrix.length; r++) {   // transpore
@@ -191,21 +209,42 @@ function rotateCheck() {
     }
 }
 
+function checkLose(){
+    if (collideTetris(arrayBoard, player)){
+        alert('you lose')
+        arrayBoard = generateArray(10, 24)
+    }
+}
+
+function clearLine(arrayBoard){
+    const isFilled = (currentValue) => currentValue >0
+    let subArray = new Array(10).fill(0)
+    for (let r = arrayBoard.length-1; r>-1;){
+        if (arrayBoard[r].every(isFilled)){
+            arrayBoard.splice(r,1)
+            arrayBoard.unshift(subArray)
+            console.log(arrayBoard)
+        }
+        else{
+            r--
+        }
+    }
+}
+
 let start = 0
 let interval = 0
-let speedCap = 800                     // speed cap is the control speed of block drop
+let speedCap = 500                    // speed cap is the control speed of block drop
 
 function updateBoard(t = 0) {
     const changeOfTime = t - start      // get the constant 16.67
     start = t                           // update the time accordingly
     interval += changeOfTime
-
+    
     if (interval > speedCap) {
         keydown()
     }
 
-
-    generate()
+    mainControlDraw()
     requestAnimationFrame(updateBoard)  // callback updateBoard by update every single flame in 0.16667
 }
 

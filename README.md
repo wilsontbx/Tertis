@@ -11,3 +11,4 @@ Issue:
 6. Rotote in side of board will cause piece go outside box
 7. After rotate block and colilde the new genarate block will same
 8. Delayed Auto Shift (DAS) behavior
+9. random block autopop
