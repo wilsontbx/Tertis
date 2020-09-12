@@ -12,3 +12,4 @@ Issue:
 7. After rotate block and colilde the new genarate block will same
 8. Delayed Auto Shift (DAS) behavior
 9. random block autopop -solve via always declare value inside loop
+10. At end of project, I found out I spell wrongly Tertis as Tetris.
