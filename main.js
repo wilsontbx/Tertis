@@ -99,14 +99,14 @@ function blockColour(val) {
 function boardStyle() {
     context.fillStyle = 'black'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height)
-    for (var x = 0; x <= 350; x += scale) {
+    for (var x = 0; x <= board.width; x += scale) {
         context.moveTo(x, 0)
         context.lineTo(x, board.height)
     }
 
     for (var y = 0; y <= board.height; y += scale) {
         context.moveTo(0, y)
-        context.lineTo(350, y)
+        context.lineTo(board.width, y)
     }
 
     context.strokeStyle = "#ddd"
@@ -114,43 +114,50 @@ function boardStyle() {
 
 }
 
-function wordStyle() {
-    context.fillStyle = "#4b75a7";
-    context.font = "100px Helvetica";
-    context.fillText("Tetris", 355, 90);
+function sideMenuControl() {
 
-    context.fillStyle = "white";
-    context.font = "40px Arial";
+    const menu = document.getElementById('menu')
+    const ctx = menu.getContext('2d')
+    ctx.fillStyle = "black"
+    ctx.fillRect(0, 0, menu.width, menu.height)
 
-    context.fillText("Score", 355, 170);
-    context.beginPath();
-    context.rect(355, 180, 240, 40);
-    context.stroke();
-    context.fillText(player.score, 355, 215);
+    ctx.fillStyle = "#4b75a7";
+    ctx.font = "100px Helvetica";
+    ctx.fillText("Tetris", 5, 90);
 
-    context.fillText("Level", 355, 290);
-    context.beginPath();
-    context.rect(355, 300, 240, 40);
-    context.stroke();
-    context.fillText(player.level, 355, 335);
+    ctx.fillStyle = "white";
+    ctx.font = "40px Arial";
+    ctx.strokeStyle = "#ddd"
 
-    context.fillText("Speed", 355, 410);
-    context.beginPath();
-    context.rect(355, 420, 240, 40);
-    context.stroke();
-    context.fillText((player.frame / 60).toFixed(2) + " second", 355, 455);
+    ctx.fillText("Score", 5, 170);
+    ctx.beginPath();
+    ctx.rect(5, 180, 120, 40);
+    ctx.stroke();
+    ctx.fillText(player.score, 5, 215);
 
-    context.fillText("Level Line", 355, 530);
-    context.beginPath();
-    context.rect(355, 540, 240, 40);
-    context.stroke();
-    context.fillText(player.curentLevelLineClear, 355, 575);
+    ctx.fillText("Level", 5, 290);
+    ctx.beginPath();
+    ctx.rect(5, 300, 240, 40);
+    ctx.stroke();
+    ctx.fillText(player.level, 5, 335);
 
-    context.fillText("Total Line", 355, 650);
-    context.beginPath();
-    context.rect(355, 660, 240, 40);
-    context.stroke();
-    context.fillText(player.totalLineClear, 355, 695);
+    ctx.fillText("Speed", 5, 410);
+    ctx.beginPath();
+    ctx.rect(5, 420, 240, 40);
+    ctx.stroke();
+    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 455);
+
+    ctx.fillText("Level Line", 5, 530);
+    ctx.beginPath();
+    ctx.rect(5, 540, 240, 40);
+    ctx.stroke();
+    ctx.fillText(player.curentLevelLineClear, 5, 575);
+
+    ctx.fillText("Total Line", 5, 650);
+    ctx.beginPath();
+    ctx.rect(5, 660, 240, 40);
+    ctx.stroke();
+    ctx.fillText(player.totalLineClear, 5, 695);
 }
 
 
@@ -158,7 +165,7 @@ function wordStyle() {
 function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
-    wordStyle()
+
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
     drawBlock(player.matrix, player.position)   // draw for moving block
 }
@@ -220,17 +227,25 @@ function collideTetris(arrayBoard, player) {
 document.addEventListener('keydown', (e) => {
     e.preventDefault                            // refer to https://keycode.info/
     if (e.keyCode === 37) {                     // 37 is left for keycode
-        moveLeftRight(-1)                       // left
+        if (!isPaused) {
+            moveLeftRight(-1)
+        }                       // left
     }
     else if (e.keyCode === 39) {                // 39 is right for keycode
-        moveLeftRight(1)                        // right
+        if (!isPaused) {
+            moveLeftRight(1)
+        }                       // right
     }
     else if (e.keyCode === 40) {                // 40 is down for keycode
-        keydown()                               // down
+        if (!isPaused) {
+            keydown()
+        }                              // down
     }
     else if (e.keyCode === 38) {                // 38 is up for keycode
-        rotate(player.matrix)                   // rotate
-        rotateCheck()
+        if (!isPaused) {
+            rotate(player.matrix)                   // rotate
+            rotateCheck()
+        }
         // interval-=100                        // das
     }
     else if (e.keyCode === 32) {                // 32 is space
@@ -238,6 +253,9 @@ document.addEventListener('keydown', (e) => {
     }
     else if (e.keyCode === 49) {                // cheat code
         instantLevelUP(1)
+    }
+    else if (e.keyCode === 27) {                // cheat code
+        isPaused = !isPaused
     }
 })
 // function instantDrop(arrayBoard, player) {
@@ -348,20 +366,7 @@ function score(line, level) {         // calculation from classis tetris
 }
 function levelUp() {
     if (player.curentLevelLineClear >= player.levelCap) {
-        if (player.level < 10 || player.level > 15) {
-            player.levelCap += 10
-        }
-        player.level++;
-        if (player.frame > 7) {
-            player.frame -= 5
-        }
-        else if (player.frame === 8) {
-            player.frame -= 2
-        }
-        else if (player.frame > 1) {
-            player.frame -= 1
-        }
-        player.curentLevelLineClear = 0
+        instantLevelUP(1)
     }
 }
 function instantLevelUP(num) {
@@ -385,18 +390,30 @@ function instantLevelUP(num) {
 
 let start = 0
 let interval = 0
+var isPaused = false;
 
 function updateBoard(t = 0) {
-    const changeOfTime = t - start      // get the constant 16.67
-    start = t                           // update the time accordingly
-    interval += changeOfTime
-    let speedCap = (player.frame / 60) * 1000   // speed cap is the control speed of block drop
-    if (interval > speedCap) {
-        keydown()
-    }
+    if (isPaused) {
+        cancelAnimationFrame(updateBoard)
 
-    mainControlDraw()
+    } else {
+        const changeOfTime = t - start      // get the constant 16.67
+        start = t                           // update the time accordingly
+        interval += changeOfTime
+        let speedCap = (player.frame / 60) * 1000   // speed cap is the control speed of block drop
+        console.log(speedCap)
+        if (interval > speedCap) {
+            keydown()
+        }
+
+        mainControlDraw()
+    }
     requestAnimationFrame(updateBoard)  // callback updateBoard by update every single flame in 0.16667
 }
 
+function updateMenu() {
+    sideMenuControl()
+    requestAnimationFrame(updateMenu)
+}
 updateBoard()
+updateMenu()

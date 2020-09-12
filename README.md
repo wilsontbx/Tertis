@@ -13,3 +13,4 @@ Issue:
 8. Delayed Auto Shift (DAS) behavior
 9. random block autopop -solve via always declare value inside loop
 10. At end of project, I found out I spell wrongly Tertis as Tetris.
+11. Enchanced for pause, side menu
