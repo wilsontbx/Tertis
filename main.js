@@ -13,8 +13,18 @@ const player = {
     totalLineClear: 0,
     curentLevelLineClear: 0,
     frame: 48,
-    levelCap: 10
+    levelCap: 5
 }
+
+function resetPlayer() {
+    player.score = 0
+    player.level = 0
+    player.totalLineClear = 0
+    player.curentLevelLineClear = 0
+    player.frame = 48
+    player.levelCap = 5
+}
+
 
 function generateBlock() {
     const block = [
@@ -297,6 +307,7 @@ function checkLose() {
     if (collideTetris(arrayBoard, player)) {
         alert('you lose')
         arrayBoard = generateArray(10, 24)
+        resetPlayer()
     }
 }
 
