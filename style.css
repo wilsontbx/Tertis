@@ -2,6 +2,6 @@ body{
     background-color: grey;
 }
 
-canvas{
+#tertisBoard, #nextBlock{
     border: 1px solid black;
 }

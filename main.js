@@ -3,100 +3,156 @@ const context = board.getContext('2d')
 
 const scale = 35;
 
+
 const player = {
     matrix: generateBlock(),
-    position: { x: 0, y: 0 },
+    position: { x: 4, y: 0 },
+    // position: { x: 0, y: 0 },
+    score: 0,
+    level: 0,
+    totalLineClear: 0,
+    curentLevelLineClear: 0,
+    frame: 48,
+    levelCap:10
 }
 
 function generateBlock() {
     const block = [
-        I=[
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0]
+        I = [
+            [0, 0, 0, 0],
+            [1, 1, 1, 1],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
         ],
-        J=[
+        J = [
             [0, 2, 0],
             [0, 2, 0],
             [2, 2, 0]
         ],
-        L=[
+        L = [
             [0, 3, 0],
             [0, 3, 0],
             [0, 3, 3]
         ],
-        O=[
+        O = [
             [4, 4],
             [4, 4]
         ],
-        S=[
+        S = [
             [0, 5, 5],
             [5, 5, 0],
             [0, 0, 0]
         ],
-        T=[
+        T = [
             [0, 0, 0],
             [6, 6, 6],
             [0, 6, 0]
         ],
-        Z=[
+        Z = [
             [7, 7, 0],
             [0, 7, 7],
             [0, 0, 0]
         ],
-            W=[
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-                [1, 1, 1, 1,1],
-            ],
+        // W=[
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        //     [1, 1, 1, 1,1],
+        // ],
+        // A = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
     ]
-    // let result = Math.floor(Math.random() * (block.length))
+    let result = Math.floor(Math.random() * (block.length))
 
-    return block[7]
+    return block[result]
 }
 
-function blockColour(val){
-    color = ["#6aecee","#0025e6","#e5a239","#f1ee4f","#6eea47","#9130e7","#dd2e21"]
+function blockColour(val) {
+    color = ["#6aecee", "#0025e6", "#e5a239", "#f1ee4f", "#6eea47", "#9130e7", "#dd2e21"]
     return color[val]
 }
 
 function boardStyle() {
-    context.fillStyle = 'white'                 // empty board generated
+    context.fillStyle = 'black'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height)
-    for (var x = 0; x < board.width; x += scale) {
+    for (var x = 0; x <= 350; x += scale) {
         context.moveTo(x, 0)
         context.lineTo(x, board.height)
     }
 
-    for (var y = 0; y < board.height; y += scale) {
+    for (var y = 0; y <= board.height; y += scale) {
         context.moveTo(0, y)
-        context.lineTo(board.height, y)
+        context.lineTo(350, y)
     }
 
     context.strokeStyle = "#ddd"
     context.stroke()
+
 }
+
+function wordStyle() {
+    context.fillStyle = "#4b75a7";
+    context.font = "100px Helvetica";
+    context.fillText("Tertis", 355, 90);
+
+    context.fillStyle = "white";
+    context.font = "40px Arial";
+
+    context.fillText("Score", 355, 170);
+    context.beginPath();
+    context.rect(355, 180, 240, 40);
+    context.stroke();
+    context.fillText(player.score, 355, 215);
+
+    context.fillText("Level", 355, 290);
+    context.beginPath();
+    context.rect(355, 300, 240, 40);
+    context.stroke();
+    context.fillText(player.level, 355, 335);
+
+    context.fillText("Speed", 355, 410);
+    context.beginPath();
+    context.rect(355, 420, 240, 40);
+    context.stroke();
+    context.fillText((player.frame / 60).toFixed(2) + " second", 355, 455);
+
+    context.fillText("Level Line", 355, 530);
+    context.beginPath();
+    context.rect(355, 540, 240, 40);
+    context.stroke();
+    context.fillText(player.curentLevelLineClear, 355, 575);
+
+    context.fillText("Total Line", 355, 650);
+    context.beginPath();
+    context.rect(355, 660, 240, 40);
+    context.stroke();
+    context.fillText(player.totalLineClear, 355, 695);
+}
+
+
 
 function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
-
+    wordStyle()
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
     drawBlock(player.matrix, player.position)   // draw for moving block
+}
+
+function generateInitialPostion() {
+    let matrix = player.matrix
+    return (5 - Math.floor(matrix.length / 2))
 }
 
 function drawBlock(block, offset) {         // this function is generate block in screen offset is to move the block
     block.forEach((row, y) => {
         row.forEach((val, x) => {
             if (val !== 0) {
-                context.fillStyle = blockColour(val-1)
+                context.fillStyle = blockColour(val - 1)
                 context.fillRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
                 context.strokeRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
             }
@@ -174,12 +230,13 @@ function keydown() {
     player.position.y++                         // everytime when press key down
     if (collideTetris(arrayBoard, player)) {    // will call this function check is that any collide(overlap)
         player.position.y--                     // reverse step and merge
-        
+
         mergeBoardPositionToArray(arrayBoard, player)
         clearLine(arrayBoard)
 
-        player.position = { x: 0, y: 0 }                  // respawn to top
-        player.matrix=generateBlock()
+        player.matrix = generateBlock()
+        player.position = { x: generateInitialPostion(), y: 0 }                  // respawn to top
+        // player.position = { x: 0, y: 0 }
     }
     interval = 0
 }
@@ -209,37 +266,76 @@ function rotateCheck() {
     }
 }
 
-function checkLose(){
-    if (collideTetris(arrayBoard, player)){
+function checkLose() {
+    if (collideTetris(arrayBoard, player)) {
         alert('you lose')
         arrayBoard = generateArray(10, 24)
     }
 }
 
-function clearLine(arrayBoard){
-    const isFilled = (currentValue) => currentValue >0
-    let subArray = new Array(10).fill(0)
-    for (let r = arrayBoard.length-1; r>-1;){
-        if (arrayBoard[r].every(isFilled)){
-            arrayBoard.splice(r,1)
+function clearLine(arrayBoard) {
+    const isFilled = (currentValue) => currentValue > 0
+    let line = 0;
+    for (let r = arrayBoard.length - 1; r > -1;) {
+        if (arrayBoard[r].every(isFilled)) {
+            let subArray = new Array(10).fill(0)
+            arrayBoard.splice(r, 1)
             arrayBoard.unshift(subArray)
-            console.log(arrayBoard)
+            line++
+            player.totalLineClear++
+            player.curentLevelLineClear++
+            levelUp()
         }
-        else{
+        else {
             r--
         }
+    }
+    score(line, player.level)
+
+}
+
+function score(line, level) {         // calculation from classis tertis
+    if (line === 1) {
+        player.score += 30 * (level + 1)
+    }
+    else if (line === 2) {
+        player.score += 100 * (level + 1)
+    }
+    else if (line === 3) {
+        player.score += 300 * (level + 1)
+    }
+    else if (line === 4) {
+        player.score += 1200 * (level + 1)
+    }
+}
+function levelUp() {
+    if (player.curentLevelLineClear >= player.levelCap) {
+        if (player.level < 10 || player.level > 15) {
+            player.levelCap += 10
+        }
+        player.level++;
+        if (player.frame > 7) {
+            player.frame -= 5
+        }
+        else if (player.frame === 8) {
+            player.frame -= 2
+        }
+        else if (player.frame > 1) {
+            player.frame -= 1
+        }
+        player.curentLevelLineClear=0
     }
 }
 
 let start = 0
 let interval = 0
-let speedCap = 500                    // speed cap is the control speed of block drop
+let speedCap = (player.frame / 60) * 1000              // speed cap is the control speed of block drop
 
 function updateBoard(t = 0) {
     const changeOfTime = t - start      // get the constant 16.67
     start = t                           // update the time accordingly
     interval += changeOfTime
-    
+
     if (interval > speedCap) {
         keydown()
     }
