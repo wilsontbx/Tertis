@@ -1,4 +1,4 @@
-const board = document.getElementById('tertisBoard')
+const board = document.getElementById('tetrisBoard')
 const context = board.getContext('2d')
 
 const scale = 35;
@@ -97,7 +97,7 @@ function boardStyle() {
 function wordStyle() {
     context.fillStyle = "#4b75a7";
     context.font = "100px Helvetica";
-    context.fillText("Tertis", 355, 90);
+    context.fillText("Tetris", 355, 90);
 
     context.fillStyle = "white";
     context.font = "40px Arial";
@@ -294,7 +294,7 @@ function clearLine(arrayBoard) {
 
 }
 
-function score(line, level) {         // calculation from classis tertis
+function score(line, level) {         // calculation from classis tetris
     if (line === 1) {
         player.score += 30 * (level + 1)
     }
