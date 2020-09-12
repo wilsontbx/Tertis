@@ -64,7 +64,17 @@ function generateBlock() {
         //     [1, 1, 1, 1,1],
         //     [1, 1, 1, 1,1],
         // ],
-        // A = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    //     A = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    //     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    // ]
     ]
     let result = Math.floor(Math.random() * (block.length))
 
@@ -217,6 +227,18 @@ document.addEventListener('keydown', (e) => {
         // instant
     }
 })
+function instantDrop(arrayBoard, player){
+    const matrix = player.matrix
+    const offset = player.position
+    for (let r = 0; r > -1; r--) {
+        for (let c = 0; c < matrix[r].length; c++) {
+            if (matrix[r][c] !== 0){
+                
+            }
+        }
+    }
+    return false
+}
 
 function moveLeftRight(val) {
     player.position.x += val                    // +1 is right and -1 is left
@@ -326,16 +348,33 @@ function levelUp() {
         player.curentLevelLineClear=0
     }
 }
+function instantLevelUP(num){
+    for (let i =0;i<num;i++){
+    if (player.level < 10 || player.level > 15) {
+        player.levelCap += 10
+    }
+    player.level++;
+    if (player.frame > 7) {
+        player.frame -= 5
+    }
+    else if (player.frame === 8) {
+        player.frame -= 2
+    }
+    else if (player.frame > 1) {
+        player.frame -= 1
+    }
+    player.curentLevelLineClear=0}
+}
 
 let start = 0
 let interval = 0
-let speedCap = (player.frame / 60) * 1000              // speed cap is the control speed of block drop
 
 function updateBoard(t = 0) {
     const changeOfTime = t - start      // get the constant 16.67
     start = t                           // update the time accordingly
     interval += changeOfTime
-
+    let speedCap = (player.frame / 60) * 1000
+    // speed cap is the control speed of block drop
     if (interval > speedCap) {
         keydown()
     }
