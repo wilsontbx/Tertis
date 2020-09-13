@@ -1,11 +1,14 @@
 const board = document.getElementById('tetrisBoard')
 const context = board.getContext('2d')
 
+
+const menu = document.getElementById('menu')
+const ctx = menu.getContext('2d')
 const scale = 35;
 
 
 const player = {
-    matrix: generateBlock(),
+    matrix: "",
     position: { x: 4, y: 0 },
     // position: { x: 0, y: 0 },
     score: 0,
@@ -13,7 +16,8 @@ const player = {
     totalLineClear: 0,
     curentLevelLineClear: 0,
     frame: 48,
-    levelCap: 5
+    levelCap: 5,
+    nextMatrix: generateBlock()
 }
 
 function resetPlayer() {
@@ -35,14 +39,14 @@ function generateBlock() {
             [0, 0, 0, 0]
         ],
         J = [
-            [0, 2, 0],
-            [0, 2, 0],
-            [2, 2, 0]
+            [2, 0, 0],
+            [2, 2, 2],
+            [0, 0, 0]
         ],
         L = [
-            [0, 3, 0],
-            [0, 3, 0],
-            [0, 3, 3]
+            [0, 0, 3],
+            [3, 3, 3],
+            [0, 0, 0]
         ],
         O = [
             [4, 4],
@@ -54,9 +58,9 @@ function generateBlock() {
             [0, 0, 0]
         ],
         T = [
-            [0, 0, 0],
+            [0, 6, 0],
             [6, 6, 6],
-            [0, 6, 0]
+            [0, 0, 0]
         ],
         Z = [
             [7, 7, 0],
@@ -99,25 +103,21 @@ function blockColour(val) {
 function boardStyle() {
     context.fillStyle = 'black'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height)
-    for (var x = 0; x <= board.width; x += scale) {
-        context.moveTo(x, 0)
-        context.lineTo(x, board.height)
-    }
+    // for (var x = 0; x <= board.width; x += scale) {
+    //     context.moveTo(x, 0) 
+    //     context.lineTo(x, board.height)
+    // }
 
-    for (var y = 0; y <= board.height; y += scale) {
-        context.moveTo(0, y)
-        context.lineTo(board.width, y)
-    }
+    // for (var y = 0; y <= board.height; y += scale) {
+    //     context.moveTo(0, y)
+    //     context.lineTo(board.width, y)
+    // }
 
-    context.strokeStyle = "#ddd"
-    context.stroke()
-
+    // context.strokeStyle = "#ddd"
+    // context.stroke()
 }
 
-function sideMenuControl() {
-
-    const menu = document.getElementById('menu')
-    const ctx = menu.getContext('2d')
+function sideMenu() {
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, menu.width, menu.height)
 
@@ -126,48 +126,66 @@ function sideMenuControl() {
     ctx.fillText("Tetris", 5, 90);
 
     ctx.fillStyle = "white";
-    ctx.font = "40px Arial";
-    ctx.strokeStyle = "#ddd"
+    ctx.font = "30px Arial";
+    ctx.strokeStyle = "white"
 
-    ctx.fillText("Score", 5, 170);
+    ctx.fillText("SCORE", 5, 140);
     ctx.beginPath();
-    ctx.rect(5, 180, 120, 40);
+    ctx.rect(5, 150, 235, 30);
     ctx.stroke();
-    ctx.fillText(player.score, 5, 215);
+    ctx.fillText(player.score, 6, 175);
 
-    ctx.fillText("Level", 5, 290);
+    ctx.fillText("LEVEL", 5, 225);
     ctx.beginPath();
-    ctx.rect(5, 300, 240, 40);
+    ctx.rect(5, 235, 235, 30);
     ctx.stroke();
-    ctx.fillText(player.level, 5, 335);
+    ctx.fillText(player.level, 5, 260);
 
-    ctx.fillText("Speed", 5, 410);
+    ctx.fillText("SPEED", 5, 310);
     ctx.beginPath();
-    ctx.rect(5, 420, 240, 40);
+    ctx.rect(5, 320, 235, 30);
     ctx.stroke();
-    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 455);
+    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 345);
 
-    ctx.fillText("Level Line", 5, 530);
-    ctx.beginPath();
-    ctx.rect(5, 540, 240, 40);
-    ctx.stroke();
-    ctx.fillText(player.curentLevelLineClear, 5, 575);
 
-    ctx.fillText("Total Line", 5, 650);
+    ctx.fillText("LINE", 5, 395);
     ctx.beginPath();
-    ctx.rect(5, 660, 240, 40);
+    ctx.rect(5, 405, 235, 30);
     ctx.stroke();
-    ctx.fillText(player.totalLineClear, 5, 695);
+    ctx.fillText(player.totalLineClear, 5, 430);
+
+    ctx.fillText("NEXT", 5, 480);
+    ctx.beginPath();
+    ctx.rect(5, 490, 235, 100);
+    ctx.stroke();
+
+    // ctx.fillText("Level Line", 5, 530);
+    // ctx.beginPath();
+    // ctx.rect(5, 540, 240, 40);
+    // ctx.stroke();
+    // ctx.fillText(player.curentLevelLineClear, 5, 575);
 }
 
+function initialGame(){
+    player.matrix=player.nextMatrix
+    player.nextMatrix=generateBlock()
+    
+}
 
+initialGame()
 
 function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
-
+    
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
     drawBlock(player.matrix, player.position)   // draw for moving block
+}
+
+function sideMenuControl() {
+    sideMenu()
+    drawBlockNext(player.nextMatrix, 
+        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length <4) ?14.4:13.9 })
 }
 
 function generateInitialPostion() {
@@ -182,6 +200,18 @@ function drawBlock(block, offset) {         // this function is generate block i
                 context.fillStyle = blockColour(val - 1)
                 context.fillRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
                 context.strokeRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
+            }
+        })
+    })
+}
+
+function drawBlockNext(block, offset) {         // this function is generate block in screen offset is to move the block
+    block.forEach((row, y) => {
+        row.forEach((val, x) => {
+            if (val !== 0) {
+                ctx.fillStyle = blockColour(val - 1)
+                ctx.fillRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
+                ctx.strokeRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
             }
         })
     })
@@ -289,13 +319,14 @@ function keydown() {
         mergeBoardPositionToArray(arrayBoard, player)
         clearLine(arrayBoard)
 
-        player.matrix = generateBlock()
+        // player.matrix = generateBlock()
+        initialGame()
         player.position = { x: generateInitialPostion(), y: 0 }                  // respawn to top
         // player.position = { x: 0, y: 0 }
     }
     interval = 0
 }
-function rotate(matrix) {                       // classic rotate -> 90 degree clockwise
+function rotate(matrix,dir=1) {                       // classic rotate -> 90 degree clockwise
     for (let r = 0; r < matrix.length; r++) {   // transpore
         for (let c = 0; c < r; c++) {
             let temp = matrix[r][c]
@@ -303,12 +334,18 @@ function rotate(matrix) {                       // classic rotate -> 90 degree c
             matrix[c][r] = temp
         }
     }
+    if(dir>0){
     matrix.forEach(element => {
         element.reverse()
     })
 }
+    else{
+        matrix.reverse()
+    }
+}
 
 function rotateCheck() {
+    const originalPos = player.position.x
     let count = 1
     while (collideTetris(arrayBoard, player)) {   // function will operate as if when block crush outside box
         if (count % 2 === 0) {                        // it will move to left one block
@@ -317,6 +354,12 @@ function rotateCheck() {
         else {
             player.position.x -= count
         }
+        
+        if (count>player.matrix[0].length) {
+            rotate(player.matrix,-1)
+            player.position.x=originalPos
+        }
+
         count++
     }
 }
@@ -401,7 +444,6 @@ function updateBoard(t = 0) {
         start = t                           // update the time accordingly
         interval += changeOfTime
         let speedCap = (player.frame / 60) * 1000   // speed cap is the control speed of block drop
-        console.log(speedCap)
         if (interval > speedCap) {
             keydown()
         }

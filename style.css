@@ -2,6 +2,6 @@ body{
     background-color: grey;
 }
 
-#tertisBoard, #nextBlock{
-    border: 1px solid black;
+#tetrisBoard{
+    border: 3px solid white;
 }
