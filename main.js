@@ -6,11 +6,11 @@ const menu = document.getElementById('menu')
 const ctx = menu.getContext('2d')
 const scale = 35;
 
+let arrayBoard = generateArray(10, 24)
 
 const player = {
-    matrix: "",
-    position: { x: 4, y: 0 },
-    // position: { x: 0, y: 0 },
+    matrix: null,
+    position: null,
     score: 0,
     level: 0,
     totalLineClear: 0,
@@ -166,13 +166,13 @@ function sideMenu() {
     // ctx.fillText(player.curentLevelLineClear, 5, 575);
 }
 
-function initialGame(){
+function initialPiece(){
     player.matrix=player.nextMatrix
+    player.position = { x: generateInitialPostion(), y: 0 }                  // respawn to top
     player.nextMatrix=generateBlock()
-    
 }
 
-initialGame()
+initialPiece()
 
 function mainControlDraw() {                           // main control
     boardStyle()
@@ -189,8 +189,9 @@ function sideMenuControl() {
 }
 
 function generateInitialPostion() {
-    let matrix = player.matrix
-    return (5 - Math.floor(matrix.length / 2))
+    let matrixLength = player.matrix.length
+    let boardLength = arrayBoard[0].length
+    return (boardLength/2 - Math.ceil(matrixLength / 2))
 }
 
 function drawBlock(block, offset) {         // this function is generate block in screen offset is to move the block
@@ -211,6 +212,7 @@ function drawBlockNext(block, offset) {         // this function is generate blo
             if (val !== 0) {
                 ctx.fillStyle = blockColour(val - 1)
                 ctx.fillRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
+                ctx.strokeStyle = "black"
                 ctx.strokeRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
             }
         })
@@ -225,7 +227,7 @@ function generateArray(width, height) {
     }
     return array
 }
-let arrayBoard = generateArray(10, 24)
+
 
 function mergeBoardPositionToArray(arrayBoard, player) {    // this function is to merge current block value to array
     const matrix = player.matrix
@@ -319,10 +321,7 @@ function keydown() {
         mergeBoardPositionToArray(arrayBoard, player)
         clearLine(arrayBoard)
 
-        // player.matrix = generateBlock()
-        initialGame()
-        player.position = { x: generateInitialPostion(), y: 0 }                  // respawn to top
-        // player.position = { x: 0, y: 0 }
+        initialPiece()
     }
     interval = 0
 }
@@ -390,7 +389,6 @@ function clearLine(arrayBoard) {
         }
     }
     score(line, player.level)
-
 }
 
 function score(line, level) {         // calculation from classis tetris
