@@ -160,40 +160,26 @@ function sideMenu() {
     ctx.strokeStyle = "white"
 
     ctx.fillText("SCORE", 5, 140);
-    ctx.beginPath();
-    ctx.rect(5, 150, 235, 30);
-    ctx.stroke();
     ctx.fillText(player.score, 6, 175);
 
     ctx.fillText("LEVEL", 5, 225);
-    ctx.beginPath();
-    ctx.rect(5, 235, 235, 30);
-    ctx.stroke();
     ctx.fillText(player.level, 5, 260);
 
     ctx.fillText("SPEED", 5, 310);
-    ctx.beginPath();
-    ctx.rect(5, 320, 235, 30);
-    ctx.stroke();
     ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 345);
 
-
     ctx.fillText("LINE", 5, 395);
-    ctx.beginPath();
-    ctx.rect(5, 405, 235, 30);
-    ctx.stroke();
     ctx.fillText(player.totalLineClear, 5, 430);
 
+    for (let i=0;i<4;i++){
+        ctx.beginPath();
+        ctx.rect(5, 150+85*i, 235, 30);
+        ctx.stroke();
+    }
     ctx.fillText("NEXT", 5, 480);
     ctx.beginPath();
     ctx.rect(5, 490, 235, 100);
     ctx.stroke();
-
-    // ctx.fillText("Level Line", 5, 530);
-    // ctx.beginPath();
-    // ctx.rect(5, 540, 240, 40);
-    // ctx.stroke();
-    // ctx.fillText(player.curentLevelLineClear, 5, 575);
 }
 
 function initialPiece() {
@@ -389,9 +375,9 @@ function rotateCheck() {
         }
 
         if (count > player.matrix[0].length) {
-            player.position++
+            player.position.y++
             if (collideTetris(arrayBoard, player)) {
-                player.position--
+                player.position.y--
                 rotate(player.matrix, -1)
                 player.position.x = originalPosX
             }
