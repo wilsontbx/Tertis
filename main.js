@@ -21,12 +21,15 @@ const player = {
 }
 
 function resetPlayer() {
+    player.matrix = null
     player.score = 0
     player.level = 0
     player.totalLineClear = 0
     player.curentLevelLineClear = 0
     player.frame = 48
     player.levelCap = 5
+    player.nextMatrix = generateBlock()
+    initialPiece()
 }
 
 
@@ -103,7 +106,7 @@ function blockColour(val) {
 function boardStyle() {
     context.fillStyle = 'black'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height)
-    
+
     // for (var x = 0; x <= board.width; x += scale) {
     //     context.moveTo(x, 0) 
     //     context.lineTo(x, board.height)
@@ -118,23 +121,30 @@ function boardStyle() {
     // context.stroke()
 }
 
-function pauseUI(){
-        context.fillStyle = 'black'                 // empty board generated
-        context.fillRect(10, 360, 330, 80)
-        context.fillStyle = "white";
-        context.font = "30px Arial";
-        context.strokeStyle = "Red"
-        context.beginPath();
-        context.rect(10, 360, 330, 80);
-        context.stroke();
-        if(isPaused){
-        context.fillText("Please press ESC", 15,390);
-        context.fillText("to continue", 15,430);
-        }
-        else if(isStarted){
-            context.fillText("Please press ENTER", 15,390);
-            context.fillText("to Start the Game", 15,430);
-        }
+function pauseUI() {
+    if (isStarted) {
+        boardStyle()
+    }
+    context.fillStyle = 'black'
+    context.fillRect(10, 360, 330, 80)
+    context.fillStyle = "white";
+    context.font = "30px Arial";
+    context.strokeStyle = "Red"
+    context.beginPath();
+    context.rect(10, 360, 330, 80);
+    context.stroke();
+    if (isPaused) {
+        context.fillText("Please press ESC", 15, 390);
+        context.fillText("to continue", 15, 430);
+    }
+    else if (isStarted) {
+        context.fillText("Please press ENTER", 15, 390);
+        context.fillText("to Start the Game", 15, 430);
+        ctx.fillStyle = 'black'
+        ctx.fillRect(5, 490, 235, 100);
+        drawBlockNext(player.matrix,
+            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.4 : 13.9 })
+    }
 }
 
 function sideMenu() {
@@ -280,22 +290,22 @@ function collideTetris(arrayBoard, player) {
 document.addEventListener('keydown', (e) => {
     e.preventDefault                            // refer to https://keycode.info/
     if (e.keyCode === 37) {                     // 37 is left for keycode
-        if (!isPaused) {
+        if (!isPaused && !isStarted) {
             moveLeftRight(-1)
         }                       // left
     }
     else if (e.keyCode === 39) {                // 39 is right for keycode
-        if (!isPaused) {
+        if (!isPaused && !isStarted) {
             moveLeftRight(1)
         }                       // right
     }
     else if (e.keyCode === 40) {                // 40 is down for keycode
-        if (!isPaused) {
+        if (!isPaused && !isStarted) {
             keydown()
         }                              // down
     }
     else if (e.keyCode === 38) {                // 38 is up for keycode
-        if (!isPaused) {
+        if (!isPaused && !isStarted) {
             rotate(player.matrix)                   // rotate
             rotateCheck()
         }
@@ -368,7 +378,7 @@ function rotate(matrix, dir = 1) {                       // classic rotate -> 90
 }
 
 function rotateCheck() {
-    const originalPos = player.position.x
+    const originalPosX = player.position.x
     let count = 1
     while (collideTetris(arrayBoard, player)) {   // function will operate as if when block crush outside box
         if (count % 2 === 0) {                        // it will move to left one block
@@ -379,8 +389,12 @@ function rotateCheck() {
         }
 
         if (count > player.matrix[0].length) {
-            rotate(player.matrix, -1)
-            player.position.x = originalPos
+            player.position++
+            if (collideTetris(arrayBoard, player)) {
+                player.position--
+                rotate(player.matrix, -1)
+                player.position.x = originalPosX
+            }
         }
 
         count++
@@ -392,6 +406,7 @@ function checkLose() {
         alert('you lose')
         arrayBoard = generateArray(10, 24)
         resetPlayer()
+        isStarted = true
     }
 }
 
@@ -401,7 +416,7 @@ function clearLine(arrayBoard) {
     let r = arrayBoard.length - 1
     while (r > -1) {
         if (arrayBoard[r].every(isFilled)) {
-            line = line+clearLineAnimation(arrayBoard,r)
+            line = line + clearLineAnimation(arrayBoard, r)
         }
         else {
             r--
@@ -410,7 +425,7 @@ function clearLine(arrayBoard) {
     score(line, player.level)
 }
 
-function clearLineAnimation(arrayBoard,r){
+function clearLineAnimation(arrayBoard, r) {
     let line = 0;
     let subArray = new Array(10).fill(0)
     arrayBoard.splice(r, 1)
@@ -419,7 +434,7 @@ function clearLineAnimation(arrayBoard,r){
     player.totalLineClear++
     player.curentLevelLineClear++
     levelUp()
-    return line 
+    return line
 }
 
 function score(line, level) {         // calculation from classis tetris
@@ -466,7 +481,7 @@ var isPaused = false
 var isStarted = true
 
 function updateBoard(t = 0) {
-    if (isPaused||isStarted) {
+    if (isPaused || isStarted) {
         pauseUI()
         cancelAnimationFrame(updateBoard)
     } else {
@@ -487,7 +502,8 @@ function updateMenu() {
     sideMenuControl()
     requestAnimationFrame(updateMenu)
 }
-
 initialPiece()
-updateBoard()
 updateMenu()
+updateBoard()
+
+
