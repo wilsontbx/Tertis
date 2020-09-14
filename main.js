@@ -103,6 +103,7 @@ function blockColour(val) {
 function boardStyle() {
     context.fillStyle = 'black'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height)
+    
     // for (var x = 0; x <= board.width; x += scale) {
     //     context.moveTo(x, 0) 
     //     context.lineTo(x, board.height)
@@ -115,6 +116,25 @@ function boardStyle() {
 
     // context.strokeStyle = "#ddd"
     // context.stroke()
+}
+
+function pauseUI(){
+        context.fillStyle = 'black'                 // empty board generated
+        context.fillRect(10, 360, 330, 80)
+        context.fillStyle = "white";
+        context.font = "30px Arial";
+        context.strokeStyle = "Red"
+        context.beginPath();
+        context.rect(10, 360, 330, 80);
+        context.stroke();
+        if(isPaused){
+        context.fillText("Please press ESC", 15,390);
+        context.fillText("to continue", 15,430);
+        }
+        else if(isStarted){
+            context.fillText("Please press ENTER", 15,390);
+            context.fillText("to Start the Game", 15,430);
+        }
 }
 
 function sideMenu() {
@@ -166,32 +186,31 @@ function sideMenu() {
     // ctx.fillText(player.curentLevelLineClear, 5, 575);
 }
 
-function initialPiece(){
-    player.matrix=player.nextMatrix
+function initialPiece() {
+    boardStyle()
+    player.matrix = player.nextMatrix
     player.position = { x: generateInitialPostion(), y: 0 }                  // respawn to top
-    player.nextMatrix=generateBlock()
+    player.nextMatrix = generateBlock()
 }
-
-initialPiece()
 
 function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
-    
+
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
     drawBlock(player.matrix, player.position)   // draw for moving block
 }
 
 function sideMenuControl() {
     sideMenu()
-    drawBlockNext(player.nextMatrix, 
-        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length <4) ?14.4:13.9 })
+    drawBlockNext(player.nextMatrix,
+        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.4 : 13.9 })
 }
 
 function generateInitialPostion() {
     let matrixLength = player.matrix.length
     let boardLength = arrayBoard[0].length
-    return (boardLength/2 - Math.ceil(matrixLength / 2))
+    return (boardLength / 2 - Math.ceil(matrixLength / 2))
 }
 
 function drawBlock(block, offset) {         // this function is generate block in screen offset is to move the block
@@ -200,7 +219,9 @@ function drawBlock(block, offset) {         // this function is generate block i
             if (val !== 0) {
                 context.fillStyle = blockColour(val - 1)
                 context.fillRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
+                context.strokeStyle = "black"
                 context.strokeRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
+
             }
         })
     })
@@ -289,6 +310,9 @@ document.addEventListener('keydown', (e) => {
     else if (e.keyCode === 27) {                // cheat code
         isPaused = !isPaused
     }
+    else if (e.keyCode === 13) {                // cheat code
+        isStarted = false
+    }
 })
 // function instantDrop(arrayBoard, player) {
 //     const matrix = player.matrix
@@ -325,7 +349,7 @@ function keydown() {
     }
     interval = 0
 }
-function rotate(matrix,dir=1) {                       // classic rotate -> 90 degree clockwise
+function rotate(matrix, dir = 1) {                       // classic rotate -> 90 degree clockwise
     for (let r = 0; r < matrix.length; r++) {   // transpore
         for (let c = 0; c < r; c++) {
             let temp = matrix[r][c]
@@ -333,12 +357,12 @@ function rotate(matrix,dir=1) {                       // classic rotate -> 90 de
             matrix[c][r] = temp
         }
     }
-    if(dir>0){
-    matrix.forEach(element => {
-        element.reverse()
-    })
-}
-    else{
+    if (dir > 0) {
+        matrix.forEach(element => {
+            element.reverse()
+        })
+    }
+    else {
         matrix.reverse()
     }
 }
@@ -353,10 +377,10 @@ function rotateCheck() {
         else {
             player.position.x -= count
         }
-        
-        if (count>player.matrix[0].length) {
-            rotate(player.matrix,-1)
-            player.position.x=originalPos
+
+        if (count > player.matrix[0].length) {
+            rotate(player.matrix, -1)
+            player.position.x = originalPos
         }
 
         count++
@@ -374,21 +398,28 @@ function checkLose() {
 function clearLine(arrayBoard) {
     const isFilled = (currentValue) => currentValue > 0
     let line = 0;
-    for (let r = arrayBoard.length - 1; r > -1;) {
+    let r = arrayBoard.length - 1
+    while (r > -1) {
         if (arrayBoard[r].every(isFilled)) {
-            let subArray = new Array(10).fill(0)
-            arrayBoard.splice(r, 1)
-            arrayBoard.unshift(subArray)
-            line++
-            player.totalLineClear++
-            player.curentLevelLineClear++
-            levelUp()
+            line = line+clearLineAnimation(arrayBoard,r)
         }
         else {
             r--
         }
     }
     score(line, player.level)
+}
+
+function clearLineAnimation(arrayBoard,r){
+    let line = 0;
+    let subArray = new Array(10).fill(0)
+    arrayBoard.splice(r, 1)
+    arrayBoard.unshift(subArray)
+    line++
+    player.totalLineClear++
+    player.curentLevelLineClear++
+    levelUp()
+    return line 
 }
 
 function score(line, level) {         // calculation from classis tetris
@@ -431,12 +462,13 @@ function instantLevelUP(num) {
 
 let start = 0
 let interval = 0
-var isPaused = false;
+var isPaused = false
+var isStarted = true
 
 function updateBoard(t = 0) {
-    if (isPaused) {
+    if (isPaused||isStarted) {
+        pauseUI()
         cancelAnimationFrame(updateBoard)
-
     } else {
         const changeOfTime = t - start      // get the constant 16.67
         start = t                           // update the time accordingly
@@ -455,5 +487,7 @@ function updateMenu() {
     sideMenuControl()
     requestAnimationFrame(updateMenu)
 }
+
+initialPiece()
 updateBoard()
 updateMenu()
