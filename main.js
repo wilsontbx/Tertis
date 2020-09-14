@@ -33,15 +33,14 @@ function resetPlayer() {
 
 function generateBlock() {
     const block = [
-        I = [
-            [0, 0, 0, 0],
-            [1, 1, 1, 1],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0]
+        Z = [
+            [1, 1, 0],
+            [0, 1, 1],
+            [0, 0, 0]
         ],
-        J = [
-            [2, 0, 0],
-            [2, 2, 2],
+        S = [
+            [0, 2, 2],
+            [2, 2, 0],
             [0, 0, 0]
         ],
         L = [
@@ -49,25 +48,31 @@ function generateBlock() {
             [3, 3, 3],
             [0, 0, 0]
         ],
-        O = [
-            [4, 4],
-            [4, 4]
-        ],
-        S = [
-            [0, 5, 5],
-            [5, 5, 0],
-            [0, 0, 0]
-        ],
         T = [
-            [0, 6, 0],
-            [6, 6, 6],
+            [0, 4, 0],
+            [4, 4, 4],
             [0, 0, 0]
         ],
-        Z = [
-            [7, 7, 0],
-            [0, 7, 7],
+        I = [
+            [0, 0, 0, 0],
+            [5, 5, 5, 5],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ],
+
+        O = [
+            [6, 6],
+            [6, 6]
+        ],
+        J = [
+            [7, 0, 0],
+            [7, 7, 7],
             [0, 0, 0]
         ],
+
+
+
+
         // W=[
         //     [1, 1, 1, 1,1],
         //     [1, 1, 1, 1,1],
@@ -97,7 +102,7 @@ function generateBlock() {
 }
 
 function blockColour(val) {
-    color = ["#6aecee", "#0025e6", "#e5a239", "#f1ee4f", "#6eea47", "#9130e7", "#dd2e21"]
+    color = ["#dd2e21","#6eea47", "#e5a239",  "#9130e7", "#6aecee","#f1ee4f", "#0025e6",  ]
     return color[val]
 }
 
@@ -139,9 +144,9 @@ function pauseUI() {
         context.fillText("Please press ENTER", 15, 390)
         context.fillText("to Start the Game", 15, 430)
         ctx.fillStyle = 'black'
-        ctx.fillRect(5, 490, 235, 100)
+        ctx.fillRect(7, 472, 233, 98)
         drawBlockNext(player.matrix,
-            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.4 : 13.9 })
+            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 13.8 : 13.3 })
     }
 }
 
@@ -149,40 +154,48 @@ function sideMenu() {
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, menu.width, menu.height)
 
-    ctx.fillStyle = "#4b75a7"
-    ctx.font = "100px Helvetica"
-    ctx.fillText("Tetris", 5, 90)
+    
+    ctx.font = "bold 70px Courier New"
+
+    // ctx.fillText("TETRIS", 5, 70)
+    let array = ["T","E","T","R","I","S"]
+    for (let i=0;i<6;i++){
+        ctx.fillStyle = blockColour(i)
+        ctx.fillText(array[i], 5+39*i, 70)
+    }
 
     ctx.fillStyle = "white"
     ctx.font = "30px Arial"
     ctx.strokeStyle = "white"
 
-    ctx.fillText("SCORE", 5, 140)
-    ctx.fillText(player.score, 6, 175)
+    ctx.fillText("SCORE", 5, 120)
+    ctx.fillText(player.score, 6, 155)
 
-    ctx.fillText("LEVEL", 5, 225)
-    ctx.fillText(player.level, 5, 260)
+    ctx.fillText("LEVEL", 5, 205)
+    ctx.fillText(player.level, 5, 240)
 
-    ctx.fillText("SPEED", 5, 310)
-    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 345)
+    ctx.fillText("SPEED", 5, 290)
+    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 325)
 
-    ctx.fillText("LINE", 5, 395)
-    ctx.fillText(player.totalLineClear, 5, 430)
+    ctx.fillText("LINE", 5, 375)
+    ctx.fillText(player.totalLineClear, 5, 410)
 
     for (let i = 0; i < 4; i++) {
         ctx.beginPath()
-        ctx.rect(5, 150 + 85 * i, 235, 30)
+        ctx.rect(5, 130 + 85 * i, 235, 30)
         ctx.stroke()
     }
-    ctx.fillText("NEXT", 5, 480)
+    ctx.fillText("NEXT", 5, 460)
     ctx.beginPath()
-    ctx.rect(5, 490, 235, 100)
+    ctx.rect(5, 470, 235, 100)
     ctx.stroke()
 
-    ctx.fillText("CONTROL", 5, 635)
+    ctx.fillText("CONTROL", 5, 615)
     ctx.beginPath()
-    ctx.rect(5, 645, 235, 190)
+    ctx.rect(5, 625, 235, 210)
     ctx.stroke()
+
+    
 }
 
 function initialPiece() {
@@ -195,15 +208,18 @@ function initialPiece() {
 function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
-
+    if (isForecast){
+        drawBlockforecast(player.matrix, player.position)
+    }
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
     drawBlock(player.matrix, player.position)   // draw for moving block
+
 }
 
 function sideMenuControl() {
     sideMenu()
     drawBlockNext(player.nextMatrix,
-        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.4 : 13.9 })
+        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 13.8 : 13.3 })
 }
 
 function generateInitialPostion() {
@@ -220,6 +236,20 @@ function drawBlock(block, offset) {         // this function is generate block i
                 context.fillRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
                 context.strokeStyle = "black"
                 context.strokeRect((x + offset.x) * scale, (y + offset.y) * scale, scale, scale)
+
+            }
+        })
+    })
+}
+
+function drawBlockforecast(block, offset) {         // this function is generate block in screen offset is to move the block
+    block.forEach((row, y) => {
+        row.forEach((val, x) => {
+            if (val !== 0) {
+                context.fillStyle = LightenDarkenColor(blockColour(val - 1),110)
+                context.fillRect((x + offset.x) * scale, (y + offset.y+findMinDistancd(arrayBoard, player) ) * scale, scale, scale)
+                context.strokeStyle = "black"
+                context.strokeRect((x + offset.x) * scale, (y + offset.y+findMinDistancd(arrayBoard, player) ) * scale, scale, scale)
 
             }
         })
@@ -306,7 +336,10 @@ document.addEventListener('keydown', (e) => {
         }
     }
     else if (e.keyCode === 49) {                // cheat code
-        instantLevelUP(1)
+        instantLevelUP()
+    }
+    else if (e.keyCode === 50) {                // cheat code
+        isForecast=!isForecast
     }
     else if (e.keyCode === 27) {                // cheat code
         isPaused = !isPaused
@@ -315,27 +348,30 @@ document.addEventListener('keydown', (e) => {
         isStarted = false
     }
 })
-function instantDrop(arrayBoard, player) {
+
+function instantDrop(){
+    player.position.y += findMinDistancd(arrayBoard, player)
+    keydown()
+}
+function findMinDistancd(arrayBoard, player) {
     const matrix = player.matrix
     const offset = player.position
     let array = []
-    for (let r = 0; r <matrix.length; r++) {
+    for (let r = 0; r < matrix.length; r++) {
         for (let c = 0; c < matrix[r].length; c++) {
             if (matrix[r][c] !== 0) {
-                array.push(findShortDistance(arrayBoard, offset.y+r,offset.x+c))
+                array.push(findDistance(arrayBoard, offset.y + r, offset.x + c))
             }
         }
     }
-    player.position.y+=Math.min(...array)
-    console.log(array)
-    keydown()
-
+    let minDistance =Math.min(...array)
+    return minDistance
 }
-function findShortDistance(arrayBoard, r,c) {
+function findDistance(arrayBoard, r, c) {
     let i = 0
     while (true) {
-        if ((arrayBoard[i + r] && arrayBoard[i+r][c])!==0){
-            return i-1
+        if ((arrayBoard[i + r] && arrayBoard[i + r][c]) !== 0) {
+            return i - 1
         }
         i++
     }
@@ -455,8 +491,7 @@ function levelUp() {
         instantLevelUP(1)
     }
 }
-function instantLevelUP(num) {
-    for (let i = 0; i < num; i++) {
+function instantLevelUP() {
         if (player.level < 10 || player.level > 15) {
             player.levelCap += 5
         }
@@ -471,13 +506,13 @@ function instantLevelUP(num) {
             player.frame -= 1
         }
         player.curentLevelLineClear = 0
-    }
 }
 
 let start = 0
 let interval = 0
 var isPaused = false
 var isStarted = true
+var isForecast = true
 
 function updateBoard(t = 0) {
     if (isPaused || isStarted) {
@@ -506,4 +541,34 @@ initialPiece()
 updateMenu()
 updateBoard()
 
+
+function LightenDarkenColor(col, amt) {
+
+    var usePound = false;
+
+    if (col[0] == "#") {
+        col = col.slice(1);
+        usePound = true;
+    }
+
+    var num = parseInt(col, 16);
+
+    var r = (num >> 16) + amt;
+
+    if (r > 255) r = 255;
+    else if (r < 0) r = 0;
+
+    var b = ((num >> 8) & 0x00FF) + amt;
+
+    if (b > 255) b = 255;
+    else if (b < 0) b = 0;
+
+    var g = (num & 0x0000FF) + amt;
+
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+
+    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
+
+}
 
