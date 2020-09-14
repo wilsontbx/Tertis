@@ -1,10 +1,9 @@
 const board = document.getElementById('tetrisBoard')
 const context = board.getContext('2d')
 
-
 const menu = document.getElementById('menu')
 const ctx = menu.getContext('2d')
-const scale = 35;
+const scale = 35
 
 let arrayBoard = generateArray(10, 24)
 
@@ -31,7 +30,6 @@ function resetPlayer() {
     player.nextMatrix = generateBlock()
     initialPiece()
 }
-
 
 function generateBlock() {
     const block = [
@@ -127,21 +125,21 @@ function pauseUI() {
     }
     context.fillStyle = 'black'
     context.fillRect(10, 360, 330, 80)
-    context.fillStyle = "white";
-    context.font = "30px Arial";
+    context.fillStyle = "white"
+    context.font = "30px Arial"
     context.strokeStyle = "Red"
-    context.beginPath();
-    context.rect(10, 360, 330, 80);
-    context.stroke();
+    context.beginPath()
+    context.rect(10, 360, 330, 80)
+    context.stroke()
     if (isPaused) {
-        context.fillText("Please press ESC", 15, 390);
-        context.fillText("to continue", 15, 430);
+        context.fillText("Please press ESC", 15, 390)
+        context.fillText("to continue", 15, 430)
     }
     else if (isStarted) {
-        context.fillText("Please press ENTER", 15, 390);
-        context.fillText("to Start the Game", 15, 430);
+        context.fillText("Please press ENTER", 15, 390)
+        context.fillText("to Start the Game", 15, 430)
         ctx.fillStyle = 'black'
-        ctx.fillRect(5, 490, 235, 100);
+        ctx.fillRect(5, 490, 235, 100)
         drawBlockNext(player.matrix,
             { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.4 : 13.9 })
     }
@@ -151,35 +149,40 @@ function sideMenu() {
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, menu.width, menu.height)
 
-    ctx.fillStyle = "#4b75a7";
-    ctx.font = "100px Helvetica";
-    ctx.fillText("Tetris", 5, 90);
+    ctx.fillStyle = "#4b75a7"
+    ctx.font = "100px Helvetica"
+    ctx.fillText("Tetris", 5, 90)
 
-    ctx.fillStyle = "white";
-    ctx.font = "30px Arial";
+    ctx.fillStyle = "white"
+    ctx.font = "30px Arial"
     ctx.strokeStyle = "white"
 
-    ctx.fillText("SCORE", 5, 140);
-    ctx.fillText(player.score, 6, 175);
+    ctx.fillText("SCORE", 5, 140)
+    ctx.fillText(player.score, 6, 175)
 
-    ctx.fillText("LEVEL", 5, 225);
-    ctx.fillText(player.level, 5, 260);
+    ctx.fillText("LEVEL", 5, 225)
+    ctx.fillText(player.level, 5, 260)
 
-    ctx.fillText("SPEED", 5, 310);
-    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 345);
+    ctx.fillText("SPEED", 5, 310)
+    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 345)
 
-    ctx.fillText("LINE", 5, 395);
-    ctx.fillText(player.totalLineClear, 5, 430);
+    ctx.fillText("LINE", 5, 395)
+    ctx.fillText(player.totalLineClear, 5, 430)
 
-    for (let i=0;i<4;i++){
-        ctx.beginPath();
-        ctx.rect(5, 150+85*i, 235, 30);
-        ctx.stroke();
+    for (let i = 0; i < 4; i++) {
+        ctx.beginPath()
+        ctx.rect(5, 150 + 85 * i, 235, 30)
+        ctx.stroke()
     }
-    ctx.fillText("NEXT", 5, 480);
-    ctx.beginPath();
-    ctx.rect(5, 490, 235, 100);
-    ctx.stroke();
+    ctx.fillText("NEXT", 5, 480)
+    ctx.beginPath()
+    ctx.rect(5, 490, 235, 100)
+    ctx.stroke()
+
+    ctx.fillText("CONTROL", 5, 635)
+    ctx.beginPath()
+    ctx.rect(5, 645, 235, 190)
+    ctx.stroke()
 }
 
 function initialPiece() {
@@ -298,7 +301,9 @@ document.addEventListener('keydown', (e) => {
         // interval-=100                        // das
     }
     else if (e.keyCode === 32) {                // 32 is space
-        // instant
+        if (!isPaused && !isStarted) {
+            instantDrop(arrayBoard, player)
+        }
     }
     else if (e.keyCode === 49) {                // cheat code
         instantLevelUP(1)
@@ -310,28 +315,37 @@ document.addEventListener('keydown', (e) => {
         isStarted = false
     }
 })
-// function instantDrop(arrayBoard, player) {
-//     const matrix = player.matrix
-//     const offset = player.position
-//     for (let r = 0; r > -1; r--) {
-//         for (let c = 0; c < matrix[r].length; c++) {
-//             if (matrix[r][c] !== 0) {
-//                 for (let i = r; i < 24; i++) {
+function instantDrop(arrayBoard, player) {
+    const matrix = player.matrix
+    const offset = player.position
+    let array = []
+    for (let r = 0; r <matrix.length; r++) {
+        for (let c = 0; c < matrix[r].length; c++) {
+            if (matrix[r][c] !== 0) {
+                array.push(findShortDistance(arrayBoard, offset.y+r,offset.x+c))
+            }
+        }
+    }
+    player.position.y+=Math.min(...array)
+    console.log(array)
+    keydown()
 
-//                 }
-//             }
-//         }
-//     }
-//     return false
-// }
-
+}
+function findShortDistance(arrayBoard, r,c) {
+    let i = 0
+    while (true) {
+        if ((arrayBoard[i + r] && arrayBoard[i+r][c])!==0){
+            return i-1
+        }
+        i++
+    }
+}
 function moveLeftRight(val) {
     player.position.x += val                    // +1 is right and -1 is left
     if (collideTetris(arrayBoard, player)) {    // will call this function check is that any collide(overlap)
         player.position.x -= val                // no matter is positve or negative this can solve
     }
 }
-
 
 function keydown() {
     player.position.y++                         // everytime when press key down
@@ -382,7 +396,6 @@ function rotateCheck() {
                 player.position.x = originalPosX
             }
         }
-
         count++
     }
 }
@@ -402,7 +415,7 @@ function clearLine(arrayBoard) {
     let r = arrayBoard.length - 1
     while (r > -1) {
         if (arrayBoard[r].every(isFilled)) {
-            line = line + clearLineAnimation(arrayBoard, r)
+            line = line + clearLineOperation(arrayBoard, r)
         }
         else {
             r--
@@ -411,8 +424,8 @@ function clearLine(arrayBoard) {
     score(line, player.level)
 }
 
-function clearLineAnimation(arrayBoard, r) {
-    let line = 0;
+function clearLineOperation(arrayBoard, r) {
+    let line = 0
     let subArray = new Array(10).fill(0)
     arrayBoard.splice(r, 1)
     arrayBoard.unshift(subArray)
@@ -447,7 +460,7 @@ function instantLevelUP(num) {
         if (player.level < 10 || player.level > 15) {
             player.levelCap += 5
         }
-        player.level++;
+        player.level++
         if (player.frame > 7) {
             player.frame -= 5
         }
@@ -470,7 +483,8 @@ function updateBoard(t = 0) {
     if (isPaused || isStarted) {
         pauseUI()
         cancelAnimationFrame(updateBoard)
-    } else {
+    }
+    else {
         const changeOfTime = t - start      // get the constant 16.67
         start = t                           // update the time accordingly
         interval += changeOfTime

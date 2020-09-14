@@ -1,6 +1,10 @@
-body{
-    background-color: grey;
+div{
+    display: center;
 }
+
+body {
+    background-image: url('img/19353.jpg');
+  }
 
 #tetrisBoard{
     border: 3px solid white;
