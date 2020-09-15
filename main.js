@@ -16,7 +16,8 @@ const player = {
     curentLevelLineClear: 0,
     frame: 48,
     levelCap: 5,
-    nextMatrix: generateBlock()
+    nextMatrix: generateBlock(),
+    totalTime: 0,
 }
 
 function resetPlayer() {
@@ -28,6 +29,7 @@ function resetPlayer() {
     player.frame = 48
     player.levelCap = 5
     player.nextMatrix = generateBlock()
+    player.totalTime = 0
     initialPiece()
 }
 
@@ -70,9 +72,6 @@ function generateBlock() {
             [0, 0, 0]
         ],
 
-
-
-
         // W=[
         //     [1, 1, 1, 1,1],
         //     [1, 1, 1, 1,1],
@@ -102,7 +101,7 @@ function generateBlock() {
 }
 
 function blockColour(val) {
-    color = ["#dd2e21","#6eea47", "#e5a239",  "#9130e7", "#6aecee","#f1ee4f", "#0025e6",  ]
+    color = ["#dd2e21", "#6eea47", "#e5a239", "#9130e7", "#6aecee", "#f1ee4f", "#0025e6",]
     return color[val]
 }
 
@@ -110,18 +109,20 @@ function boardStyle() {
     context.fillStyle = 'black'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height)
 
-    // for (var x = 0; x <= board.width; x += scale) {
-    //     context.moveTo(x, 0) 
-    //     context.lineTo(x, board.height)
-    // }
+    if (isGrid) {
+        for (var x = 0; x <= board.width; x += scale) {
+            context.moveTo(x, 0)
+            context.lineTo(x, board.height)
+        }
 
-    // for (var y = 0; y <= board.height; y += scale) {
-    //     context.moveTo(0, y)
-    //     context.lineTo(board.width, y)
-    // }
+        for (var y = 0; y <= board.height; y += scale) {
+            context.moveTo(0, y)
+            context.lineTo(board.width, y)
+        }
 
-    // context.strokeStyle = "#ddd"
-    // context.stroke()
+        context.strokeStyle = "white"
+        context.stroke()
+    }
 }
 
 function pauseUI() {
@@ -130,12 +131,17 @@ function pauseUI() {
     }
     context.fillStyle = 'black'
     context.fillRect(10, 360, 330, 80)
+
+    context.fillStyle = "red"
+    context.fillRect(10, 360, 330, 2)
+    context.fillRect(10, 440, 330, 2)
+    context.fillRect(10, 360, 2, 80)
+    context.fillRect(340, 360, 2, 82)
+
     context.fillStyle = "white"
     context.font = "30px Arial"
-    context.strokeStyle = "Red"
-    context.beginPath()
-    context.rect(10, 360, 330, 80)
-    context.stroke()
+
+
     if (isPaused) {
         context.fillText("Please press ESC", 15, 390)
         context.fillText("to continue", 15, 430)
@@ -144,9 +150,9 @@ function pauseUI() {
         context.fillText("Please press ENTER", 15, 390)
         context.fillText("to Start the Game", 15, 430)
         ctx.fillStyle = 'black'
-        ctx.fillRect(7, 472, 233, 98)
+        ctx.fillRect(8, 428, 229, 89)
         drawBlockNext(player.matrix,
-            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 13.8 : 13.3 })
+            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 12.5 : 12 })
     }
 }
 
@@ -154,48 +160,62 @@ function sideMenu() {
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, menu.width, menu.height)
 
-    
+
     ctx.font = "bold 70px Courier New"
 
     // ctx.fillText("TETRIS", 5, 70)
-    let array = ["T","E","T","R","I","S"]
-    for (let i=0;i<6;i++){
+    let array = ["T", "E", "T", "R", "I", "S"]
+    for (let i = 0; i < 6; i++) {
         ctx.fillStyle = blockColour(i)
-        ctx.fillText(array[i], 5+39*i, 70)
+        ctx.fillText(array[i], 5 + 39 * i, 70)
     }
 
     ctx.fillStyle = "white"
-    ctx.font = "30px Arial"
+    ctx.font = "20px Arial"
     ctx.strokeStyle = "white"
 
-    ctx.fillText("SCORE", 5, 120)
-    ctx.fillText(player.score, 6, 155)
+    ctx.fillText("SCORE", 6, 120)
+    ctx.fillText(player.score, 10, 145)
 
-    ctx.fillText("LEVEL", 5, 205)
-    ctx.fillText(player.level, 5, 240)
+    ctx.fillText("LEVEL", 6, 180)
+    ctx.fillText(player.level, 10, 205)
 
-    ctx.fillText("SPEED", 5, 290)
-    ctx.fillText((player.frame / 60).toFixed(2) + " second", 5, 325)
+    ctx.fillText("SPEED", 6, 240)
+    ctx.fillText((player.frame / 60).toFixed(2) + " second", 10, 265)
 
-    ctx.fillText("LINE", 5, 375)
-    ctx.fillText(player.totalLineClear, 5, 410)
+    ctx.fillText("LINE", 6, 300)
+    ctx.fillText(player.totalLineClear, 10, 325)
 
-    for (let i = 0; i < 4; i++) {
+    ctx.fillText("TIME", 6, 360)
+    ctx.fillText(timer(player.totalTime), 10, 385)
+
+    for (let i = 0; i < 5; i++) {               // draw line
         ctx.beginPath()
-        ctx.rect(5, 130 + 85 * i, 235, 30)
+        ctx.rect(5, 125 + 60 * i, 235, 25)
         ctx.stroke()
     }
-    ctx.fillText("NEXT", 5, 460)
+    ctx.fillText("NEXT", 5, 420)
     ctx.beginPath()
-    ctx.rect(5, 470, 235, 100)
+    ctx.rect(5, 425, 235, 95)
     ctx.stroke()
 
-    ctx.fillText("CONTROL", 5, 615)
+    ctx.fillText("CONTROL", 5, 550)
     ctx.beginPath()
-    ctx.rect(5, 625, 235, 210)
+    ctx.rect(5, 555, 235, 280)
     ctx.stroke()
 
-    
+    ctx.font = "20px Arial"
+    ctx.fillText("↑ - Rotate", 10, 575)
+    ctx.fillText("→ - Right", 10, 600)
+    ctx.fillText("↓ - Left", 10, 625)
+    ctx.fillText("← - Down", 10, 650)
+    ctx.fillText("Space Bar - Instant drop", 10, 675)
+    ctx.fillText("1 - Level Up", 10, 700)
+    ctx.fillText("2 - Show drop down", 10, 725)
+
+
+
+
 }
 
 function initialPiece() {
@@ -208,7 +228,7 @@ function initialPiece() {
 function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
-    if (isForecast){
+    if (isForecast) {
         drawBlockforecast(player.matrix, player.position)
     }
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
@@ -219,7 +239,7 @@ function mainControlDraw() {                           // main control
 function sideMenuControl() {
     sideMenu()
     drawBlockNext(player.nextMatrix,
-        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 13.8 : 13.3 })
+        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 12.5 : 12 })
 }
 
 function generateInitialPostion() {
@@ -246,10 +266,10 @@ function drawBlockforecast(block, offset) {         // this function is generate
     block.forEach((row, y) => {
         row.forEach((val, x) => {
             if (val !== 0) {
-                context.fillStyle = LightenDarkenColor(blockColour(val - 1),110)
-                context.fillRect((x + offset.x) * scale, (y + offset.y+findMinDistancd(arrayBoard, player) ) * scale, scale, scale)
+                context.fillStyle = LightenDarkenColor(blockColour(val - 1), 110)
+                context.fillRect((x + offset.x) * scale, (y + offset.y + findMinDistancd(arrayBoard, player)) * scale, scale, scale)
                 context.strokeStyle = "black"
-                context.strokeRect((x + offset.x) * scale, (y + offset.y+findMinDistancd(arrayBoard, player) ) * scale, scale, scale)
+                context.strokeRect((x + offset.x) * scale, (y + offset.y + findMinDistancd(arrayBoard, player)) * scale, scale, scale)
 
             }
         })
@@ -328,7 +348,6 @@ document.addEventListener('keydown', (e) => {
             rotate(player.matrix)                   // rotate
             rotateCheck()
         }
-        // interval-=100                        // das
     }
     else if (e.keyCode === 32) {                // 32 is space
         if (!isPaused && !isStarted) {
@@ -339,17 +358,22 @@ document.addEventListener('keydown', (e) => {
         instantLevelUP()
     }
     else if (e.keyCode === 50) {                // cheat code
-        isForecast=!isForecast
+        isForecast = !isForecast
     }
-    else if (e.keyCode === 27) {                // cheat code
-        isPaused = !isPaused
+    else if (e.keyCode === 51) {                // cheat code
+        isGrid = !isGrid
     }
-    else if (e.keyCode === 13) {                // cheat code
+    else if (e.keyCode === 27) {
+        if (!isStarted) {
+            isPaused = !isPaused
+        }
+    }
+    else if (e.keyCode === 13) {
         isStarted = false
     }
 })
 
-function instantDrop(){
+function instantDrop() {
     player.position.y += findMinDistancd(arrayBoard, player)
     keydown()
 }
@@ -364,7 +388,7 @@ function findMinDistancd(arrayBoard, player) {
             }
         }
     }
-    let minDistance =Math.min(...array)
+    let minDistance = Math.min(...array)
     return minDistance
 }
 function findDistance(arrayBoard, r, c) {
@@ -451,25 +475,19 @@ function clearLine(arrayBoard) {
     let r = arrayBoard.length - 1
     while (r > -1) {
         if (arrayBoard[r].every(isFilled)) {
-            line = line + clearLineOperation(arrayBoard, r)
+            let subArray = new Array(10).fill(0)
+            arrayBoard.splice(r, 1)
+            arrayBoard.unshift(subArray)
+            line++
+            player.totalLineClear++
+            player.curentLevelLineClear++
+            levelUp()
         }
         else {
             r--
         }
     }
     score(line, player.level)
-}
-
-function clearLineOperation(arrayBoard, r) {
-    let line = 0
-    let subArray = new Array(10).fill(0)
-    arrayBoard.splice(r, 1)
-    arrayBoard.unshift(subArray)
-    line++
-    player.totalLineClear++
-    player.curentLevelLineClear++
-    levelUp()
-    return line
 }
 
 function score(line, level) {         // calculation from classis tetris
@@ -492,20 +510,20 @@ function levelUp() {
     }
 }
 function instantLevelUP() {
-        if (player.level < 10 || player.level > 15) {
-            player.levelCap += 5
-        }
-        player.level++
-        if (player.frame > 7) {
-            player.frame -= 5
-        }
-        else if (player.frame === 8) {
-            player.frame -= 2
-        }
-        else if (player.frame > 1) {
-            player.frame -= 1
-        }
-        player.curentLevelLineClear = 0
+    if (player.level < 10 || player.level > 15) {
+        player.levelCap += 5
+    }
+    player.level++
+    if (player.frame > 7) {
+        player.frame -= 5
+    }
+    else if (player.frame === 8) {
+        player.frame -= 2
+    }
+    else if (player.frame > 1) {
+        player.frame -= 1
+    }
+    player.curentLevelLineClear = 0
 }
 
 let start = 0
@@ -513,23 +531,36 @@ let interval = 0
 var isPaused = false
 var isStarted = true
 var isForecast = true
+var isGrid = false
+var startTime = null
+var pauseTime = 0
 
 function updateBoard(t = 0) {
+    if (!startTime) {
+        startTime = t
+    }
+
     if (isPaused || isStarted) {
         pauseUI()
         cancelAnimationFrame(updateBoard)
+        pauseTime = t - startTime - player.totalTime
+        player.totalTime = t - startTime - pauseTime
     }
     else {
         const changeOfTime = t - start      // get the constant 16.67
         start = t                           // update the time accordingly
         interval += changeOfTime
+
         let speedCap = (player.frame / 60) * 1000   // speed cap is the control speed of block drop
         if (interval > speedCap) {
             keydown()
         }
 
+        player.totalTime = (t - startTime) - pauseTime
+
         mainControlDraw()
     }
+
     requestAnimationFrame(updateBoard)  // callback updateBoard by update every single flame in 0.16667
 }
 
@@ -541,9 +572,38 @@ initialPiece()
 updateMenu()
 updateBoard()
 
+function timer(input) {
+    input = (input / 1000)
+    let hours = Math.floor((input % (60 * 60 * 24)) / (60 * 60))
+    let minutes = Math.floor((input % (60 * 60)) / 60)
+    let seconds = (input % 60).toFixed(2)
+
+    let output = ""
+    if (hours < 10) {
+        output = "0" + hours
+    }
+    else {
+        output = hours
+    }
+
+    if (minutes < 10) {
+        output += ":0" + minutes
+    }
+    else {
+        output += ":" + minutes
+    }
+
+    if (seconds < 10) {
+        output += ":0" + seconds
+    }
+    else {
+        output += ":" + seconds
+    }
+
+    return output
+}
 
 function LightenDarkenColor(col, amt) {
-
     var usePound = false;
 
     if (col[0] == "#") {
@@ -569,6 +629,4 @@ function LightenDarkenColor(col, amt) {
     else if (g < 0) g = 0;
 
     return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
-
 }
-
