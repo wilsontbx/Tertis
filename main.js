@@ -6,6 +6,7 @@ const ctx = menu.getContext('2d')
 const scale = 35
 
 let arrayBoard = generateArray(10, 24)
+localStorage.setItem("highestScore",0)
 
 const player = {
     matrix: null,
@@ -129,6 +130,7 @@ function pauseUI() {
     if (isStarted) {
         boardStyle()
     }
+
     context.fillStyle = 'black'
     context.fillRect(10, 360, 330, 80)
 
@@ -150,9 +152,9 @@ function pauseUI() {
         context.fillText("Please press ENTER", 15, 390)
         context.fillText("to Start the Game", 15, 430)
         ctx.fillStyle = 'black'
-        ctx.fillRect(8, 428, 229, 89)
+        ctx.fillRect(8, 483, 229, 89)
         drawBlockNext(player.matrix,
-            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 12.5 : 12 })
+            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.1 : 13.6 })
     }
 }
 
@@ -174,48 +176,48 @@ function sideMenu() {
     ctx.font = "20px Arial"
     ctx.strokeStyle = "white"
 
-    ctx.fillText("SCORE", 6, 120)
-    ctx.fillText(player.score, 10, 145)
+    let listTitle = ["SCORE","LEVEL","SPEED","LINE","TIME","HIGHEST SCORE",]
+    let listData = [player.score,player.level,(player.frame / 60).toFixed(2) + " second",player.totalLineClear,timer(player.totalTime),localStorage.getItem("highestScore"),]
+    // ctx.fillText("SCORE", 6, 120)
+    // ctx.fillText(player.score, 10, 145)
 
-    ctx.fillText("LEVEL", 6, 180)
-    ctx.fillText(player.level, 10, 205)
+    // ctx.fillText("LEVEL", 6, 180)
+    // ctx.fillText(player.level, 10, 205)
 
-    ctx.fillText("SPEED", 6, 240)
-    ctx.fillText((player.frame / 60).toFixed(2) + " second", 10, 265)
+    // ctx.fillText("SPEED", 6, 240)
+    // ctx.fillText((player.frame / 60).toFixed(2) + " second", 10, 265)
 
-    ctx.fillText("LINE", 6, 300)
-    ctx.fillText(player.totalLineClear, 10, 325)
+    // ctx.fillText("LINE", 6, 300)
+    // ctx.fillText(player.totalLineClear, 10, 325)
 
-    ctx.fillText("TIME", 6, 360)
-    ctx.fillText(timer(player.totalTime), 10, 385)
+    // ctx.fillText("TIME", 6, 360)
+    // ctx.fillText(timer(player.totalTime), 10, 385)
 
-    for (let i = 0; i < 5; i++) {               // draw line
+    // ctx.fillText("HIGHEST SCORE", 6, 420)
+    // ctx.fillText(localStorage.getItem("highestScore"), 10, 445)
+
+    for (let i = 0; i < 6; i++) {               // draw line
+        ctx.fillText(listTitle[i], 6, 115+60*i)
+        ctx.fillText(listData[i], 10, 140+60*i)
         ctx.beginPath()
-        ctx.rect(5, 125 + 60 * i, 235, 25)
+        ctx.rect(5, 120 + 60 * i, 235, 25)
         ctx.stroke()
     }
-    ctx.fillText("NEXT", 5, 420)
+
+    ctx.fillText("NEXT", 5, 475)
     ctx.beginPath()
-    ctx.rect(5, 425, 235, 95)
+    ctx.rect(5, 480, 235, 95)
     ctx.stroke()
 
-    ctx.fillText("CONTROL", 5, 550)
+    ctx.fillText("CONTROL", 5, 605)
     ctx.beginPath()
-    ctx.rect(5, 555, 235, 280)
+    ctx.rect(5, 610, 235, 225)
     ctx.stroke()
 
-    ctx.font = "20px Arial"
-    ctx.fillText("↑ - Rotate", 10, 575)
-    ctx.fillText("→ - Right", 10, 600)
-    ctx.fillText("↓ - Left", 10, 625)
-    ctx.fillText("← - Down", 10, 650)
-    ctx.fillText("Space Bar - Instant drop", 10, 675)
-    ctx.fillText("1 - Level Up", 10, 700)
-    ctx.fillText("2 - Show drop down", 10, 725)
-
-
-
-
+    let control =["↑ - Rotate", "→ - Right","← - Left","↓ - Down","Space Bar - Instant drop","1 - Level Up", "2 - Show drop down","3 - Show grid","esc - Pause",]
+    for (let i = 0; i<control.length;i++){
+        ctx.fillText(control[i], 10, 630+25*i)
+    }
 }
 
 function initialPiece() {
@@ -233,13 +235,12 @@ function mainControlDraw() {                           // main control
     }
     drawBlock(arrayBoard, { x: 0, y: 0 })        // draw for existing struture
     drawBlock(player.matrix, player.position)   // draw for moving block
-
 }
 
 function sideMenuControl() {
     sideMenu()
     drawBlockNext(player.nextMatrix,
-        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 12.5 : 12 })
+        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.1 : 13.6 })
 }
 
 function generateInitialPostion() {
@@ -270,13 +271,12 @@ function drawBlockforecast(block, offset) {         // this function is generate
                 context.fillRect((x + offset.x) * scale, (y + offset.y + findMinDistancd(arrayBoard, player)) * scale, scale, scale)
                 context.strokeStyle = "black"
                 context.strokeRect((x + offset.x) * scale, (y + offset.y + findMinDistancd(arrayBoard, player)) * scale, scale, scale)
-
             }
         })
     })
 }
 
-function drawBlockNext(block, offset) {         // this function is generate block in screen offset is to move the block
+function drawBlockNext(block, offset) {
     block.forEach((row, y) => {
         row.forEach((val, x) => {
             if (val !== 0) {
@@ -354,13 +354,13 @@ document.addEventListener('keydown', (e) => {
             instantDrop(arrayBoard, player)
         }
     }
-    else if (e.keyCode === 49) {                // cheat code
+    else if (e.keyCode === 49) {
         instantLevelUP()
     }
-    else if (e.keyCode === 50) {                // cheat code
+    else if (e.keyCode === 50) {
         isForecast = !isForecast
     }
-    else if (e.keyCode === 51) {                // cheat code
+    else if (e.keyCode === 51) {
         isGrid = !isGrid
     }
     else if (e.keyCode === 27) {
@@ -370,6 +370,9 @@ document.addEventListener('keydown', (e) => {
     }
     else if (e.keyCode === 13) {
         isStarted = false
+    }
+    else if (e.keyCode === 79) {            // cheat code = 0
+        arrayBoard=generateArray(10,24)
     }
 })
 
@@ -462,6 +465,9 @@ function rotateCheck() {
 
 function checkLose() {
     if (collideTetris(arrayBoard, player)) {
+        if (localStorage.getItem("highestScore")<player.score){
+            localStorage.setItem("highestScore",player.score)
+        }
         alert('you lose')
         arrayBoard = generateArray(10, 24)
         resetPlayer()
