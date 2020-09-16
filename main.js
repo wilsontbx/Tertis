@@ -104,6 +104,10 @@ function boardStyle() {
 }
 
 function pauseUI() {
+    if (isStarted){
+        boardStyle()
+    }
+
     context.globalAlpha = 1
     context.fillStyle = 'black'
     context.fillRect(10, 360, 330, 80)
