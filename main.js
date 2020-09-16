@@ -175,9 +175,9 @@ function sideMenu() {
     ctx.strokeStyle = "white"
 
     let listTitle = ["SCORE","LEVEL","SPEED","LINE","TIME","HIGHEST SCORE",]
-    let listData = [player.score,player.level,(player.frame / 60).toFixed(2) + " second",player.totalLineClear,timer(player.totalTime),localStorage.getItem("highestScore"),]
+    let listData = [player.score,player.level,((player.frame/60).toFixed(3)) + " second",player.totalLineClear,timer(player.totalTime),localStorage.getItem("highestScore"),]
 
-    for (let i = 0; i < 6; i++) {               // draw line
+    for (let i = 0; i < listTitle.length; i++) {               // draw line
         ctx.fillText(listTitle[i], 6, 115+60*i)
         ctx.fillText(listData[i], 10, 140+60*i)
         ctx.beginPath()
@@ -403,6 +403,7 @@ function keydown() {
     }
     interval = 0
 }
+
 function rotate(matrix, dir = 1) {                       // classic rotate -> 90 degree clockwise
     for (let r = 0; r < matrix.length; r++) {   // transpore
         for (let c = 0; c < r; c++) {
@@ -497,19 +498,32 @@ function levelUp() {
     }
 }
 function instantLevelUP() {
-    if (player.level < 10 || player.level > 15) {
-        player.levelCap += 5
-    }
-    player.level++
-    if (player.frame > 7) {
+    if (player.level < 8) {
         player.frame -= 5
     }
-    else if (player.frame === 8) {
+    else if (player.level === 8) {
         player.frame -= 2
+    }
+    else if (player.level > 9 && player.level < 12){
+        player.frame =player.frame
+    }
+    else if (player.level > 12 && player.level < 15){
+        player.frame =player.frame
+    }
+    else if (player.level > 15 && player.level < 18){
+        player.frame =player.frame
+    }
+    else if (player.level > 18 && player.level < 28){
+        player.frame =player.frame
     }
     else if (player.frame > 1) {
         player.frame -= 1
     }
+
+    if (player.level < 10 || player.level > 15) {
+        player.levelCap += 5
+    }
+    player.level++
     player.curentLevelLineClear = 0
 }
 
