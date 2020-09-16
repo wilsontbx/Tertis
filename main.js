@@ -172,7 +172,7 @@ function sideMenuControl() {
     ctx.rect(5, 610, 235, 225)
     ctx.stroke()
 
-    let control = ["↑ - Rotate", "→ - Right", "← - Left", "↓ - Down", "Space Bar - Instant drop", "1 - Level Up", "2 - Show drop down", "3 - Show grid", "esc - Pause",]
+    let control = ["↑ - Rotate", "→ - Right", "← - Left", "↓ - Down", "Space Bar - Hard Drop", "1 - Level Up", "2 - Show Forecast", "3 - Show grid", "esc - Pause",]
     for (let i = 0; i < control.length; i++) {
         ctx.fillText(control[i], 10, 630 + 25 * i)
     }
@@ -187,7 +187,6 @@ function initialPiece() {
     player.matrix = player.nextMatrix
     player.position = { x: generateInitialPostion(), y: 0 }                  // respawn to top
     player.nextMatrix = generateBlock()
-
 }
 
 function mainControlDraw() {                           // main control
@@ -391,7 +390,6 @@ function rotateCheck() {
 
         if (count > player.matrix[0].length) {
             player.position.y++
-            rotate(player.matrix)
             if (collideTetris(arrayBoard, player)) {
                 rotate(player.matrix, -1)
                 player.position.y--
