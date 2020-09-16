@@ -391,9 +391,10 @@ function rotateCheck() {
 
         if (count > player.matrix[0].length) {
             player.position.y++
+            rotate(player.matrix)
             if (collideTetris(arrayBoard, player)) {
-                player.position.y--
                 rotate(player.matrix, -1)
+                player.position.y--
                 player.position.x = originalPosX
             }
         }
