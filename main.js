@@ -162,10 +162,8 @@ function sideMenu() {
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, menu.width, menu.height)
 
-
     ctx.font = "bold 70px Courier New"
 
-    // ctx.fillText("TETRIS", 5, 70)
     let array = ["T", "E", "T", "R", "I", "S"]
     for (let i = 0; i < 6; i++) {
         ctx.fillStyle = blockColour(i)
@@ -178,23 +176,6 @@ function sideMenu() {
 
     let listTitle = ["SCORE","LEVEL","SPEED","LINE","TIME","HIGHEST SCORE",]
     let listData = [player.score,player.level,(player.frame / 60).toFixed(2) + " second",player.totalLineClear,timer(player.totalTime),localStorage.getItem("highestScore"),]
-    // ctx.fillText("SCORE", 6, 120)
-    // ctx.fillText(player.score, 10, 145)
-
-    // ctx.fillText("LEVEL", 6, 180)
-    // ctx.fillText(player.level, 10, 205)
-
-    // ctx.fillText("SPEED", 6, 240)
-    // ctx.fillText((player.frame / 60).toFixed(2) + " second", 10, 265)
-
-    // ctx.fillText("LINE", 6, 300)
-    // ctx.fillText(player.totalLineClear, 10, 325)
-
-    // ctx.fillText("TIME", 6, 360)
-    // ctx.fillText(timer(player.totalTime), 10, 385)
-
-    // ctx.fillText("HIGHEST SCORE", 6, 420)
-    // ctx.fillText(localStorage.getItem("highestScore"), 10, 445)
 
     for (let i = 0; i < 6; i++) {               // draw line
         ctx.fillText(listTitle[i], 6, 115+60*i)
@@ -468,7 +449,7 @@ function checkLose() {
         if (localStorage.getItem("highestScore")<player.score){
             localStorage.setItem("highestScore",player.score)
         }
-        alert('you lose')
+        alert('You Lose. Please try again')
         arrayBoard = generateArray(10, 24)
         resetPlayer()
         isStarted = true
