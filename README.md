@@ -24,7 +24,7 @@ Not required
 7. There is cheat code to clear all the block : "O"
 
 | Level | Frames per Grid | Lines to advance |
-|-------|:---------------:|-----------------:|
+|:-----:|:---------------:|:----------------:|
 |  00   |        48       |         5        |
 |  01   |        43       |        10        |
 |  02   |        38       |        15        |
