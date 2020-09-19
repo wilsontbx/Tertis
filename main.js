@@ -1,3 +1,4 @@
+// initialize
 const board = document.getElementById('tetrisBoard')
 const context = board.getContext('2d')
 
@@ -33,7 +34,7 @@ function resetPlayer() {
     player.totalTime = 0
     initialPiece()
 }
-
+// block
 function generateBlock() {
     const block = [
         Z = [
@@ -62,7 +63,6 @@ function generateBlock() {
             [0, 0, 0, 0],
             [0, 0, 0, 0]
         ],
-
         O = [
             [6, 6],
             [6, 6]
@@ -82,8 +82,9 @@ function blockColour(val) {
     color = ["#dd2e21", "#6eea47", "#e5a239", "#9130e7", "#6aecee", "#f1ee4f", "#0025e6",]
     return color[val]
 }
-
+// board
 function boardStyle() {
+    context.globalAlpha = 1
     context.fillStyle = 'black'                 // empty board generated
     context.fillRect(0, 0, board.width, board.height)
 
@@ -135,6 +136,7 @@ function pauseUI() {
     }
 }
 
+// side menu
 function sideMenuControl() {
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, menu.width, menu.height)
@@ -151,8 +153,8 @@ function sideMenuControl() {
     ctx.font = "20px Arial"
     ctx.strokeStyle = "white"
 
-    let listTitle = ["SCORE", "LEVEL", "SPEED", "LINE", "TIME", "HIGHEST SCORE",]
-    let listData = [player.score, player.level, ((player.frame / 60).toFixed(3)) + " second", player.totalLineClear, timer(player.totalTime), localStorage.getItem("highestScore"),]
+    let listTitle = ["SCORE", "LEVEL", "SPEED", "LINE", "TIME", "HIGHEST SCORE"]
+    let listData = [player.score, player.level, ((player.frame / 60).toFixed(3)) + " second", player.totalLineClear, timer(player.totalTime), localStorage.getItem("highestScore")]
 
     for (let i = 0; i < listTitle.length; i++) {               // draw line
         ctx.fillText(listTitle[i], 6, 115 + 60 * i)
@@ -172,7 +174,7 @@ function sideMenuControl() {
     ctx.rect(5, 610, 235, 225)
     ctx.stroke()
 
-    let control = ["↑ - Rotate", "→ - Right", "← - Left", "↓ - Down", "Space Bar - Hard Drop", "1 - Level Up", "2 - Show Forecast", "3 - Show grid", "esc - Pause",]
+    let control = ["↑ - Rotate", "→ - Right", "← - Left", "↓ - Down", "Space Bar - Hard Drop", "1 - Level Up", "2 - Show Forecast", "3 - Show grid", "esc - Pause"]
     for (let i = 0; i < control.length; i++) {
         ctx.fillText(control[i], 10, 630 + 25 * i)
     }
@@ -181,6 +183,7 @@ function sideMenuControl() {
         { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.1 : 13.6 },ctx)
 }
 
+// initial game
 function initialPiece() {
     boardStyle()
 
@@ -189,6 +192,12 @@ function initialPiece() {
     player.nextMatrix = generateBlock()
 }
 
+function generateInitialPostion() {
+    let matrixLength = player.matrix.length
+    let boardLength = arrayBoard[0].length
+    return (boardLength / 2 - Math.ceil(matrixLength / 2))
+}
+// draw board
 function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
@@ -198,12 +207,6 @@ function mainControlDraw() {                           // main control
     if (isForecast) {
         drawBlock(player.matrix, player.position,context, findMinDistance(arrayBoard, player))
     }
-}
-
-function generateInitialPostion() {
-    let matrixLength = player.matrix.length
-    let boardLength = arrayBoard[0].length
-    return (boardLength / 2 - Math.ceil(matrixLength / 2))
 }
 
 function drawBlock(block, offset, element, forecast=0) {         // this function is generate block in screen offset is to move the block
@@ -234,7 +237,6 @@ function generateArray(width, height) {
     return array
 }
 
-
 function mergeBoardPositionToArray(arrayBoard, player) {    // this function is to merge current block value to array
     const matrix = player.matrix
     const offset = player.position
@@ -246,7 +248,7 @@ function mergeBoardPositionToArray(arrayBoard, player) {    // this function is 
         })
     })
 }
-
+// check function
 function collideTetris(arrayBoard, player) {
     const matrix = player.matrix
     const offset = player.position
@@ -254,7 +256,7 @@ function collideTetris(arrayBoard, player) {
         for (let c = 0; c < matrix[r].length; c++) {
             if (matrix[r][c] !== 0 &&                                   // first condition
                 (arrayBoard[offset.y + r] &&                            // second condition
-                    arrayBoard[offset.y + r][offset.x + c]) !== 0) {    // this can check undefinite value
+                    arrayBoard[offset.y + r][offset.x + c]) !== 0) {    // short circuit undefinite value
                 return true
             }
         }
@@ -262,6 +264,18 @@ function collideTetris(arrayBoard, player) {
     return false
 }
 
+function checkLose() {
+    if (collideTetris(arrayBoard, player)) {
+        if (localStorage.getItem("highestScore") < player.score) {
+            localStorage.setItem("highestScore", player.score)
+        }
+        alert('You Lose. Please try again')
+        arrayBoard = generateArray(10, 24)
+        resetPlayer()
+        isStarted = true
+    }
+}
+// keydown
 document.addEventListener('keydown', (e) => {
     e.preventDefault                            // refer to https://keycode.info/
     if (e.keyCode === 37) {                     // 37 is left for keycode
@@ -311,11 +325,12 @@ document.addEventListener('keydown', (e) => {
         arrayBoard = generateArray(10, 24)
     }
 })
-
+// control function
 function instantDrop() {
     player.position.y += findMinDistance(arrayBoard, player)
     keydown()
 }
+
 function findMinDistance(arrayBoard, player) {
     const matrix = player.matrix
     const offset = player.position
@@ -330,6 +345,7 @@ function findMinDistance(arrayBoard, player) {
     let minDistance = Math.min(...array)
     return minDistance
 }
+
 function findDistance(arrayBoard, r, c) {
     let i = 0
     while (true) {
@@ -389,29 +405,18 @@ function rotateCheck() {
         }
 
         if (count > player.matrix[0].length) {
+            player.position.x = originalPosX
             player.position.y++
             if (collideTetris(arrayBoard, player)) {
                 rotate(player.matrix, -1)
                 player.position.y--
-                player.position.x = originalPosX
             }
         }
         count++
     }
 }
 
-function checkLose() {
-    if (collideTetris(arrayBoard, player)) {
-        if (localStorage.getItem("highestScore") < player.score) {
-            localStorage.setItem("highestScore", player.score)
-        }
-        alert('You Lose. Please try again')
-        arrayBoard = generateArray(10, 24)
-        resetPlayer()
-        isStarted = true
-    }
-}
-
+// scoring function
 function clearLine(arrayBoard) {
     const isFilled = (currentValue) => currentValue > 0
     let line = 0;
@@ -447,11 +452,13 @@ function score(line, level) {         // calculation from classis tetris
         player.score += 1200 * (level + 1)
     }
 }
+
 function levelUp() {
     if (player.curentLevelLineClear >= player.levelCap) {
         instantLevelUP(1)
     }
 }
+
 function instantLevelUP() {
     if (player.level < 8) {
         player.frame -= 5
@@ -510,11 +517,11 @@ function updateBoard(t = 0) {
         if (interval > speedCap) {
             keydown()
         }
-        player.totalTime = (t - startTime) - pauseTime
 
+        player.totalTime = (t - startTime) - pauseTime
         mainControlDraw()
     }
-    requestAnimationFrame(updateBoard)  // callback updateBoard by update every single flame in 0.16667
+    requestAnimationFrame(updateBoard)  // callback updateBoard by update every single frame in 0.16667
 }
 
 function updateMenu() {
