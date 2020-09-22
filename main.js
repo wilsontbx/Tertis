@@ -105,8 +105,11 @@ function boardStyle() {
 }
 
 function pauseUI() {
-    if (isStarted){
+    if (isStarted) {             // better looking for pause UI to show grid
         boardStyle()
+    }
+    else if (isPaused) {
+        mainControlDraw()
     }
 
     context.globalAlpha = 1
@@ -129,10 +132,6 @@ function pauseUI() {
     else if (isStarted) {
         context.fillText("Please press ENTER", 15, 390)
         context.fillText("to Start the Game", 15, 430)
-        ctx.fillStyle = 'black'
-        ctx.fillRect(8, 483, 229, 89)
-        drawBlock(player.matrix,
-            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.1 : 13.6 },ctx)
     }
 }
 
@@ -178,9 +177,14 @@ function sideMenuControl() {
     for (let i = 0; i < control.length; i++) {
         ctx.fillText(control[i], 10, 630 + 25 * i)
     }
-
-    drawBlock(player.nextMatrix,
-        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.1 : 13.6 },ctx)
+    if (isStarted) {
+        drawBlock(player.matrix,
+            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.1 : 13.6 }, ctx)
+    }
+    else {
+        drawBlock(player.nextMatrix,
+            { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.1 : 13.6 }, ctx)
+    }
 }
 
 // initial game
@@ -202,21 +206,21 @@ function mainControlDraw() {                           // main control
     boardStyle()
     checkLose()
 
-    drawBlock(arrayBoard, { x: 0, y: 0 },context)        // draw for existing struture
-    drawBlock(player.matrix, player.position,context)   // draw for moving block
+    drawBlock(arrayBoard, { x: 0, y: 0 }, context)        // draw for existing struture
+    drawBlock(player.matrix, player.position, context)   // draw for moving block
     if (isForecast) {
-        drawBlock(player.matrix, player.position,context, findMinDistance(arrayBoard, player))
+        drawBlock(player.matrix, player.position, context, findMinDistance(arrayBoard, player))
     }
 }
 
-function drawBlock(block, offset, element, forecast=0) {         // this function is generate block in screen offset is to move the block
+function drawBlock(block, offset, element, forecast = 0) {         // this function is generate block in screen offset is to move the block
     block.forEach((row, y) => {
         row.forEach((val, x) => {
             if (val !== 0) {
-                if (forecast>0){
+                if (forecast > 0) {
                     element.globalAlpha = 0.4
                 }
-                else{
+                else {
                     element.globalAlpha = 1
                 }
                 element.fillStyle = blockColour(val - 1)
@@ -528,9 +532,11 @@ function updateMenu() {
     sideMenuControl()
     requestAnimationFrame(updateMenu)
 }
+
 initialPiece()
 updateMenu()
 updateBoard()
+
 
 function timer(input) {
     input = (input / 1000)
