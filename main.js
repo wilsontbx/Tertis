@@ -177,14 +177,14 @@ function sideMenuControl() {
     for (let i = 0; i < control.length; i++) {
         ctx.fillText(control[i], 10, 630 + 25 * i)
     }
-    if (isStarted) {
-        drawBlock(player.matrix,
-            { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.1 : 13.6 }, ctx)
-    }
-    else {
+    // if (isStarted) {
+    //     drawBlock(player.matrix,
+    //         { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.1 : 13.6 }, ctx)
+    // }
+    // else {
         drawBlock(player.nextMatrix,
             { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.1 : 13.6 }, ctx)
-    }
+    // }
 }
 
 // initial game
@@ -323,7 +323,11 @@ document.addEventListener('keydown', (e) => {
         }
     }
     else if (e.keyCode === 13) {
-        isStarted = false
+        if (isStarted){
+            isStarted = false
+            initialPiece()
+        }
+
     }
     else if (e.keyCode === 79) {            // cheat code = 0
         arrayBoard = generateArray(10, 24)
@@ -502,13 +506,15 @@ var startTime = null
 var pauseTime = 0
 
 function updateBoard(t = 0) {
+
+    
     if (!startTime) {
         startTime = t
     }
 
     if (isPaused || isStarted) {
         pauseUI()
-        cancelAnimationFrame(updateBoard)
+        // cancelAnimationFrame(updateBoard)
         pauseTime = t - startTime - player.totalTime
         player.totalTime = t - startTime - pauseTime
     }
@@ -524,17 +530,19 @@ function updateBoard(t = 0) {
 
         player.totalTime = (t - startTime) - pauseTime
         mainControlDraw()
+        
     }
+    sideMenuControl()
+    
     requestAnimationFrame(updateBoard)  // callback updateBoard by update every single frame in 0.16667
 }
 
-function updateMenu() {
-    sideMenuControl()
-    requestAnimationFrame(updateMenu)
-}
+// function updateMenu() {
+    
+//     requestAnimationFrame(updateMenu)
+// }
 
-initialPiece()
-updateMenu()
+// updateMenu()
 updateBoard()
 
 
