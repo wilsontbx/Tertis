@@ -22,6 +22,58 @@ const player = {
     totalTime: 0,
 }
 
+const keyCodeRef = {                // refer to https://keycode.info/
+    "37": () => {                     // 37 is left for keycode
+        if (!isPaused && !isStarted) {
+            moveLeftRight(-1)
+        }                       // left
+    },
+    "39": () => {                // 39 is right for keycode
+        if (!isPaused && !isStarted) {
+            moveLeftRight(1)
+        }                       // right
+    },
+    "40": () => {                // 40 is down for keycode
+        if (!isPaused && !isStarted) {
+            keydown()
+        }                              // down
+    },
+    "38": () => {                // 38 is up for keycode
+        if (!isPaused && !isStarted) {
+            rotate(player.matrix)                   // rotate
+            rotateCheck()
+        }
+    },
+    "32": () => {                // 32 is space
+        if (!isPaused && !isStarted) {
+            instantDrop(arrayBoard, player)
+        }
+    },
+    "49": () => {
+        instantLevelUP()
+    },
+    "50": () => {
+        isForecast = !isForecast
+    },
+    "51": () => {
+        isGrid = !isGrid
+    },
+    "27": () => {
+        if (!isStarted) {
+            isPaused = !isPaused
+        }
+    },
+    "13": () => {
+        if (isStarted) {
+            isStarted = false
+            initialPiece()
+        }
+    },
+    "79": () => {            // cheat code = 0
+        arrayBoard = generateArray(10, 24)
+    }
+}
+
 function resetPlayer() {
     player.matrix = null
     player.score = 0
@@ -177,14 +229,9 @@ function sideMenuControl() {
     for (let i = 0; i < control.length; i++) {
         ctx.fillText(control[i], 10, 630 + 25 * i)
     }
-    // if (isStarted) {
-    //     drawBlock(player.matrix,
-    //         { x: 3.5 - (player.matrix.length / 2), y: (player.matrix.length < 4) ? 14.1 : 13.6 }, ctx)
-    // }
-    // else {
-        drawBlock(player.nextMatrix,
-            { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.1 : 13.6 }, ctx)
-    // }
+
+    drawBlock(player.nextMatrix,
+        { x: 3.5 - (player.nextMatrix.length / 2), y: (player.nextMatrix.length < 4) ? 14.1 : 13.6 }, ctx)
 }
 
 // initial game
@@ -281,57 +328,11 @@ function checkLose() {
 }
 // keydown
 document.addEventListener('keydown', (e) => {
-    e.preventDefault                            // refer to https://keycode.info/
-    if (e.keyCode === 37) {                     // 37 is left for keycode
-        if (!isPaused && !isStarted) {
-            moveLeftRight(-1)
-        }                       // left
+    e.preventDefault
+    if (keyCodeRef[e.keyCode]===undefined){             // to avoid other keyCode will throw error in console 
+        return
     }
-    else if (e.keyCode === 39) {                // 39 is right for keycode
-        if (!isPaused && !isStarted) {
-            moveLeftRight(1)
-        }                       // right
-    }
-    else if (e.keyCode === 40) {                // 40 is down for keycode
-        if (!isPaused && !isStarted) {
-            keydown()
-        }                              // down
-    }
-    else if (e.keyCode === 38) {                // 38 is up for keycode
-        if (!isPaused && !isStarted) {
-            rotate(player.matrix)                   // rotate
-            rotateCheck()
-        }
-    }
-    else if (e.keyCode === 32) {                // 32 is space
-        if (!isPaused && !isStarted) {
-            instantDrop(arrayBoard, player)
-        }
-    }
-    else if (e.keyCode === 49) {
-        instantLevelUP()
-    }
-    else if (e.keyCode === 50) {
-        isForecast = !isForecast
-    }
-    else if (e.keyCode === 51) {
-        isGrid = !isGrid
-    }
-    else if (e.keyCode === 27) {
-        if (!isStarted) {
-            isPaused = !isPaused
-        }
-    }
-    else if (e.keyCode === 13) {
-        if (isStarted){
-            isStarted = false
-            initialPiece()
-        }
-
-    }
-    else if (e.keyCode === 79) {            // cheat code = 0
-        arrayBoard = generateArray(10, 24)
-    }
+    keyCodeRef[e.keyCode]()
 })
 // control function
 function instantDrop() {
@@ -374,10 +375,8 @@ function keydown() {
     player.position.y++                         // everytime when press key down
     if (collideTetris(arrayBoard, player)) {    // will call this function check is that any collide(overlap)
         player.position.y--                     // reverse step and merge
-
         mergeBoardPositionToArray(arrayBoard, player)
         clearLine(arrayBoard)
-
         initialPiece()
     }
     interval = 0
@@ -437,28 +436,18 @@ function clearLine(arrayBoard) {
             line++
             player.totalLineClear++
             player.curentLevelLineClear++
-            levelUp()
         }
         else {
             r--
         }
     }
     score(line, player.level)
+    levelUp()
 }
 
 function score(line, level) {         // calculation from classis tetris
-    if (line === 1) {
-        player.score += 30 * (level + 1)
-    }
-    else if (line === 2) {
-        player.score += 100 * (level + 1)
-    }
-    else if (line === 3) {
-        player.score += 300 * (level + 1)
-    }
-    else if (line === 4) {
-        player.score += 1200 * (level + 1)
-    }
+    let scoreFactor = [0, 30, 100, 300, 1200]
+    player.score += scoreFactor[line] * (level + 1)
 }
 
 function levelUp() {
@@ -474,21 +463,10 @@ function instantLevelUP() {
     else if (player.level === 8) {
         player.frame -= 2
     }
-    else if (player.level > 9 && player.level < 12) {
-        player.frame = player.frame
-    }
-    else if (player.level > 12 && player.level < 15) {
-        player.frame = player.frame
-    }
-    else if (player.level > 15 && player.level < 18) {
-        player.frame = player.frame
-    }
-    else if (player.level > 18 && player.level < 28) {
-        player.frame = player.frame
-    }
-    else if (player.frame > 1) {
+    else if (player.level === 9 || player.level === 12 || player.level === 15 || player.level === 18 || player.level === 28) {
         player.frame -= 1
     }
+
     if (player.level < 10 || player.level > 15) {
         player.levelCap += 5
     }
@@ -496,25 +474,37 @@ function instantLevelUP() {
     player.curentLevelLineClear = 0
 }
 
+function timer(input) {
+    input = (input / 1000)
+    let hours = Math.floor((input % (60 * 60 * 24)) / (60 * 60))
+    let minutes = Math.floor((input % (60 * 60)) / 60)
+    let seconds = (input % 60).toFixed(2)
+    let arrayTime = [hours,minutes,seconds]
+    for (let i = 0;i<arrayTime.length;i++){
+        if (arrayTime[i] < 10) {
+            arrayTime[i] = "0" + arrayTime[i]
+        }
+    }
+    let output = arrayTime.join(':')
+    return output
+}
+
 let start = 0
 let interval = 0
-var isPaused = false
-var isStarted = true
-var isForecast = true
-var isGrid = false
-var startTime = null
-var pauseTime = 0
+let isPaused = false
+let isStarted = true
+let isForecast = true
+let isGrid = false
+let startTime = null
+let pauseTime = 0
 
 function updateBoard(t = 0) {
-
-    
     if (!startTime) {
         startTime = t
     }
 
     if (isPaused || isStarted) {
         pauseUI()
-        // cancelAnimationFrame(updateBoard)
         pauseTime = t - startTime - player.totalTime
         player.totalTime = t - startTime - pauseTime
     }
@@ -523,56 +513,17 @@ function updateBoard(t = 0) {
         start = t                           // update the time accordingly
         interval += changeOfTime
 
-        let speedCap = (player.frame / 60) * 1000   // speed cap is the control speed of block drop
+        const speedCap = (player.frame / 60) * 1000   // speed cap is the control speed of block drop
         if (interval > speedCap) {
             keydown()
         }
 
         player.totalTime = (t - startTime) - pauseTime
         mainControlDraw()
-        
+
     }
     sideMenuControl()
-    
+
     requestAnimationFrame(updateBoard)  // callback updateBoard by update every single frame in 0.16667
 }
-
-// function updateMenu() {
-    
-//     requestAnimationFrame(updateMenu)
-// }
-
-// updateMenu()
 updateBoard()
-
-
-function timer(input) {
-    input = (input / 1000)
-    let hours = Math.floor((input % (60 * 60 * 24)) / (60 * 60))
-    let minutes = Math.floor((input % (60 * 60)) / 60)
-    let seconds = (input % 60).toFixed(2)
-
-    let output = ""
-    if (hours < 10) {
-        output = "0" + hours
-    }
-    else {
-        output = hours
-    }
-
-    if (minutes < 10) {
-        output += ":0" + minutes
-    }
-    else {
-        output += ":" + minutes
-    }
-
-    if (seconds < 10) {
-        output += ":0" + seconds
-    }
-    else {
-        output += ":" + seconds
-    }
-
-    return output
-}
