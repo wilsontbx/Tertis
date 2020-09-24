@@ -131,7 +131,7 @@ function generateBlock() {
 }
 
 function blockColour(val) {
-    color = ["#dd2e21", "#6eea47", "#e5a239", "#9130e7", "#6aecee", "#f1ee4f", "#0025e6",]
+    color = ["#dd2e21", "#6eea47", "#e5a239", "#9130e7", "#6aecee", "#f1ee4f", "#0025e6"]
     return color[val]
 }
 // board
@@ -329,7 +329,7 @@ function checkLose() {
 // keydown
 document.addEventListener('keydown', (e) => {
     e.preventDefault
-    if (keyCodeRef[e.keyCode]===undefined){             // to avoid other keyCode will throw error in console 
+    if (keyCodeRef[e.keyCode] === undefined) {             // to avoid other keyCode will throw error in console 
         return
     }
     keyCodeRef[e.keyCode]()
@@ -441,18 +441,14 @@ function clearLine(arrayBoard) {
             r--
         }
     }
-    score(line, player.level)
-    levelUp()
+    scoreLevelUp(line, player.level)
 }
 
-function score(line, level) {         // calculation from classis tetris
+function scoreLevelUp(line, level) {         // calculation from classis tetris
     let scoreFactor = [0, 30, 100, 300, 1200]
     player.score += scoreFactor[line] * (level + 1)
-}
-
-function levelUp() {
     if (player.curentLevelLineClear >= player.levelCap) {
-        instantLevelUP(1)
+        instantLevelUP()
     }
 }
 
@@ -479,8 +475,8 @@ function timer(input) {
     let hours = Math.floor((input % (60 * 60 * 24)) / (60 * 60))
     let minutes = Math.floor((input % (60 * 60)) / 60)
     let seconds = (input % 60).toFixed(2)
-    let arrayTime = [hours,minutes,seconds]
-    for (let i = 0;i<arrayTime.length;i++){
+    let arrayTime = [hours, minutes, seconds]
+    for (let i = 0; i < arrayTime.length; i++) {
         if (arrayTime[i] < 10) {
             arrayTime[i] = "0" + arrayTime[i]
         }
